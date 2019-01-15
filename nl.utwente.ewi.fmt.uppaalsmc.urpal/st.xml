@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project nl.utwente.ewi.fmt.uppaalsmc.urpal">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="/home/ramon.onis/master/macs/uppaal/plugins"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/mainui.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI"/>
+                <attribute name="Uppaal-Plugin" value="nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <fileset dir="${dir.workspace}/nl.utwente.ewi.fmt.uppaalsmc.parser/bin"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/metamodel/nl.utwente.ewi.fmt.uppaalsmc/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.core.runtime_3.13.0.v20170207-1030.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/javax.inject_1.0.0.v20091030.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.osgi_3.12.100.v20180210-1608.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.osgi.compatibility.state_1.1.0.v20170516-1513.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.equinox.common_3.9.0.v20170207-1454.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.core.jobs_3.9.3.v20180115-1757.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.equinox.registry_3.7.0.v20170222-1344.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.equinox.preferences_3.7.0.v20170126-2132.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.core.contenttype_3.6.0.v20170207-1037.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.equinox.app_1.3.400.v20150715-1528.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.ecore_2.13.0.v20170609-0707.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.common_2.13.0.v20170609-0707.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.ecore.xmi_2.13.0.v20170609-0707.jar"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/metamodel/org.muml.uppaal/bin"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/metamodel/org.muml.uppaal/model"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/serializer/org.muml.uppaal.serialization/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.ui_3.109.0.v20170411-1742.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.swt_3.106.3.v20180329-0507.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.swt.gtk.linux.x86_64_3.106.3.v20180329-0507.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.jface_3.13.2.v20171022-1656.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.core.commands_3.9.0.v20170530-1048.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.ui.workbench_3.110.1.v20170704-1208.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.e4.ui.workbench3_0.14.0.v20160630-0740.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.core.resources_3.12.0.v20170417-1558.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtend_2.2.0.v201605260315.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe.core_1.3.21.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.apache.commons.cli_1.2.0.v201404270220.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe2.runtime_2.9.1.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/com.ibm.icu_58.2.0.v20170418-1837.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.antlr.runtime_4.3.0.v201502022030.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.ocl.ecore_3.6.200.v20170522-1736.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.ocl_3.6.200.v20170522-1736.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/lpg.runtime.java_2.0.17.v201004271640.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.ocl.common_1.4.200.v20160613-1518.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtend.lib_2.12.0.v20170518-0757.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.xbase.lib_2.12.0.v20170518-0757.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/com.google.guava_21.0.0.v20170206-1425.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtend.lib.macro_2.12.0.v20170518-0757.jar"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/requirements/org.muml.uppaal.requirements/bin"/>
+            <fileset dir="/home/ramon.onis/repos/AFTModel/UppaalEMF/requirements/org.muml.uppaal.requirements/model"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext_2.12.0.v20170518-0959.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.antlr.runtime_3.2.0.v201101311130.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/com.google.inject_3.0.0.v201312141243.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe.utils_1.3.21.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.util_2.12.0.v20170518-0959.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.xbase_2.12.0.v20170519-0752.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.common.types_2.12.0.v20170519-0752.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.xtext.generator_2.12.0.v20170518-0959.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.codegen.ecore_2.13.0.v20170609-0928.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.codegen_2.12.0.v20170609-0928.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe2.launch_2.9.1.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe2.language_2.9.1.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.emf.mwe2.lib_2.9.1.201705291011.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.objectweb.asm_6.0.0.v20180116-1719.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.apache.commons.logging_1.1.1.v201101211721.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.apache.log4j_1.2.15.v201012070815.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtext.generator_2.12.0.v20170519-0752.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xpand_2.2.0.v201605260315.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.eclipse.xtend.typesystem.emf_2.2.0.v201605260315.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.apache.xerces_2.9.0.v201101211617.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/ramon.onis/ides/eclipse_emf/plugins/org.apache.commons.io_2.2.0.v201405211200.jar"/>
+        </jar>
+    </target>
+</project>

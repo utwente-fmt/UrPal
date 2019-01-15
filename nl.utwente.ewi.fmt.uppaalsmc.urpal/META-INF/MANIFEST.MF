@@ -1,0 +1,2 @@
+Manifest-Version: 1.1
+Uppaal-Plugin: nl.utwente.ewi.fmt.uppaalsmc.urpal.ui.MainUI
