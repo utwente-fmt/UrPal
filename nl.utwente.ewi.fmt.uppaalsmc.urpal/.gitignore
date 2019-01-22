@@ -56,3 +56,4 @@ local.properties
 .scala_dependencies
 .worksheet
 /target/
+/build/
