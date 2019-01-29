@@ -22,10 +22,9 @@ jobs:
       TERM: dumb
 
     steps:
-      - checkout:
-        post:
-          - git submodule sync --recursive
-          - git submodule update --init --recursive
+      - checkout
+      - run: git submodule sync --recursive
+      - run: git submodule update --init --recursive
 
       # Download and cache dependencies
       - restore_cache:
