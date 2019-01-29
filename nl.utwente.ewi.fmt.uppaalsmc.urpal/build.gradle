@@ -6,6 +6,8 @@ plugins {
 dependencies {
 	
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+	compile project(':parser')
+
 
     testImplementation 'junit:junit:4.12'
 }
@@ -17,8 +19,7 @@ repositories {
 sourceSets {
 	main {
 		java {
-			srcDir 'cd ../uppaal-ecore-parser/UppaalEMF/metamodel/nl.utwente.ewi.fmt.uppaalsmc/src'
-			srcDir 'cd ../uppaalecore-parser/UppaalEMF/metamodel/org.muml.uppaal/src'
+			srcDir 'main/java'
 		}
 	}
 }

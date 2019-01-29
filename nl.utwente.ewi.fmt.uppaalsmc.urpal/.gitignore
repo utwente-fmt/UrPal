@@ -57,3 +57,5 @@ local.properties
 .worksheet
 /target/
 /build/
+
+!gradle/wrapper/gradle-wrapper.jar
