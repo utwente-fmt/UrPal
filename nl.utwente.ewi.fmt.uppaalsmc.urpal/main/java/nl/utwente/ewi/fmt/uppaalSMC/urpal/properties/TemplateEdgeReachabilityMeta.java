@@ -196,7 +196,7 @@ public class TemplateEdgeReachabilityMeta extends AbstractProperty {
 							Set<com.uppaal.model.core2.Edge> unreachable = new HashSet<>();
 							int varI = 0;
 							for (String varName : vars) {
-								Matcher matcher = Pattern.compile("_fl\\[(\\d+)\\]$").matcher(varName);
+								Matcher matcher = Pattern.compile("_fl\\[(\\d+)]$").matcher(varName);
 								if (matcher.matches()) {
 									com.uppaal.model.core2.Edge edge = templateEdges.get(Integer.parseInt(matcher.group(1)));
 									if (ss.getVariableValues()[varI] == 0) {

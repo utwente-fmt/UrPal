@@ -200,7 +200,7 @@ public class SystemLocationReachabilityMeta extends AbstractProperty {
 							int varI = 0;
 							int size = 0;
 							for (String varName : vars) {
-								Matcher matcher = Pattern.compile("(.*)\\._fl\\[(\\d+)\\]$").matcher(varName);
+								Matcher matcher = Pattern.compile("(.*)\\._fl\\[(\\d+)]$").matcher(varName);
 								if (matcher.matches()) {
 									size++;
 									Process process = sys.getProcess(sys.getProcessIndex(matcher.group(1)));

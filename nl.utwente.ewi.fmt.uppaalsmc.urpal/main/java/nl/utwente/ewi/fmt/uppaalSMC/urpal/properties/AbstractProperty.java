@@ -41,22 +41,22 @@ public abstract class AbstractProperty {
 			
 			new InvariantViolationProperty(),
 			new UnusedVariablesProperty() };
-	public static final String DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
-	public static final String DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
+	static final String DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
+	static final String DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
 	public static int STATE_SPACE_SIZE = 0;
-	protected static boolean AWAKE = false;
+	static boolean AWAKE = false;
 
 	public abstract void doCheck(NSTA nsta, Document doc, UppaalSystem system, Consumer<SanityCheckResult> cb);
 
 	private static Semaphore sem = new Semaphore(Runtime.getRuntime().availableProcessors());
 
-	protected static Set<Thread> threads = new HashSet<>();
+	private static Set<Thread> threads = new HashSet<>();
 
-	public static void interruptThreads() {
-		threads.forEach(Thread::interrupt);
-	}
+//	public static void interruptThreads() {
+//		threads.forEach(Thread::interrupt);
+//	}
 
-	public static void verifyta(File file, String query, String options, BiConsumer<String, String> cb)
+	static void verifyta(File file, String query, String options, BiConsumer<String, String> cb)
 			throws IOException {
 		File temp = File.createTempFile("query", ".q");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
@@ -86,7 +86,7 @@ public abstract class AbstractProperty {
 		}).start();
 	}
 
-	public static void verifyta(NSTA nsta, String query, String options, BiConsumer<String, String> cb)
+	private static void verifyta(NSTA nsta, String query, String options, BiConsumer<String, String> cb)
 			throws IOException {
 		File temp = File.createTempFile("nsta", ".xml");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
@@ -95,12 +95,8 @@ public abstract class AbstractProperty {
 		verifyta(temp, query, options, cb);
 	}
 
-	public static void verifyta(NSTA nsta, String query, BiConsumer<String, String> cb) throws IOException {
+	static void verifyta(NSTA nsta, String query, BiConsumer<String, String> cb) throws IOException {
 		verifyta(nsta, query, "", cb);
-	}
-
-	public static void verifyta(File file, String query, BiConsumer<String, String> cb) throws IOException {
-		verifyta(file, query, "", cb);
 	}
 
 	public static long maxMem = 0;

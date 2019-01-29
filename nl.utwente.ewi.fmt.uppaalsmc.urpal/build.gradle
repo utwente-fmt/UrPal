@@ -7,13 +7,17 @@ dependencies {
 	
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	compile project(':parser')
-
+	compile name: 'lib/model'
+	compile name: 'uppaal'
 
     testImplementation 'junit:junit:4.12'
 }
 
 repositories {
     mavenCentral()
+	flatDir {
+		dirs "$System.env.UPPAAL_ROOT"
+	}
 }
 
 sourceSets {

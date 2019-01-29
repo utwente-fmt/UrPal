@@ -62,8 +62,8 @@ public class SystemLocationReachability extends AbstractProperty {
 			bw.write(new Serialization().main(nsta).toString());
 			bw.close();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			return;
 		}
 		File file = temp;
 		AtomicInteger maxMem = new AtomicInteger();

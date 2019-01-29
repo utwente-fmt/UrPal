@@ -5,8 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.muml.uppaal.declarations.ChannelVariableDeclaration;
@@ -158,7 +158,7 @@ public class UppaalUtil {
 			CompareExpression comp = EcoreUtil.copy((CompareExpression) ex);
 			IdentifierExpression id = (IdentifierExpression) (comp.getFirstExpr() instanceof IdentifierExpression ? comp.getFirstExpr() :
 				comp.getSecondExpr() instanceof IdentifierExpression ? comp.getSecondExpr() : null);
-			if (id != null && id.isDerivative()) {
+			if (id != null && id.isClockRate()) {
 				return null;
 			}
 			switch (comp.getOperator()) {
@@ -333,9 +333,9 @@ public class UppaalUtil {
 			}
 			if (constr instanceof CompareExpression) {
 				CompareExpression compare = (CompareExpression) constr;
-				if (Arrays.asList(compare.getFirstExpr(), compare.getSecondExpr()).stream()
+				if (Stream.of(compare.getFirstExpr(), compare.getSecondExpr())
 						.filter(IdentifierExpression.class::isInstance).map(IdentifierExpression.class::cast)
-						.anyMatch(ie -> ie.isDerivative())) {
+						.anyMatch(IdentifierExpression::isClockRate)) {
 					compare.setFirstExpr(createLiteral("0"));
 					compare.setSecondExpr(createLiteral("0"));
 					compare.setOperator(CompareOperator.EQUAL);

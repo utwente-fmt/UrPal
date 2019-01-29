@@ -206,7 +206,7 @@ public class SystemEdgeReachabilityMeta extends AbstractProperty {
 							Set<SystemEdge> unreachableSysEdges = new HashSet<>();
 							int varI = 0;
 							for (String varName : vars) {
-								Matcher matcher = Pattern.compile("(.*)\\._fl\\[(\\d+)\\]$").matcher(varName);
+								Matcher matcher = Pattern.compile("(.*)\\._fl\\[(\\d+)]$").matcher(varName);
 								if (matcher.matches()) {
 									Process process = sys.getProcess(sys.getProcessIndex(matcher.group(1)));
 									SystemEdge sysEdge = process.getEdge(Integer.parseInt(matcher.group(2)));
