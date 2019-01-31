@@ -44,3 +44,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "nl.utwente.ewi.fmt.uppaalsmc.urpal/build.gradle" }}
+
+      # run tests!
+      - run: gradle build
