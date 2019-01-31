@@ -29,21 +29,18 @@ jobs:
       - run: echo -e "Host vcs.utwente.nl\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
-      - run: cd nl.utwente.ewi.fmt.uppaalsmc.urpal
 
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
+            - v1-dependencies-{{ checksum "nl.utwente.ewi.fmt.uppaalsmc.urpal/build.gradle" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      - run: cd nl.utwente.ewi.fmt.uppaalsmc.urpal
       - run: gradle dependencies
 
       - save_cache:
           paths:
             - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      # run tests!
-      - run: gradle build
+          key: v1-dependencies-{{ checksum "nl.utwente.ewi.fmt.uppaalsmc.urpal/build.gradle" }}
