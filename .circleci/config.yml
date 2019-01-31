@@ -26,6 +26,7 @@ jobs:
           fingerprints:
             - "a3:ce:2b:91:ef:fe:b2:3f:20:3b:81:64:5d:62:72:0b"
       - checkout
+      - run: echo -e "Host vcs.utwente.nl\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
 
