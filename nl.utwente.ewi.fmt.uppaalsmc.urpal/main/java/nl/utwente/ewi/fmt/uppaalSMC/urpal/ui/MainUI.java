@@ -2,7 +2,6 @@ package nl.utwente.ewi.fmt.uppaalSMC.urpal.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
@@ -41,7 +40,7 @@ import com.uppaal.plugin.Plugin;
 import com.uppaal.plugin.PluginWorkspace;
 import com.uppaal.plugin.Registry;
 import com.uppaal.plugin.Repository;
-import com.uppaal.plugin.Repository$ChangeType;
+import com.uppaal.plugin.Repository.ChangeType;
 
 import nl.utwente.ewi.fmt.uppaalSMC.parser.UppaalSMCStandaloneSetup;
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
@@ -50,14 +49,13 @@ import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.SanityCheck;
 
 @SuppressWarnings("serial")
 public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyChangeListener {
-    private Set<PropertyPanel> panels = new HashSet<>();
+    private final Set<PropertyPanel> panels = new HashSet<>();
     private ResourceSet rs;
-    protected long last = 0l;
     private Repository<Document> docr;
     private boolean selected;
     private double zoom;
 
-    private PluginWorkspace[] workspaces = new PluginWorkspace[1];
+    private final PluginWorkspace[] workspaces = new PluginWorkspace[1];
 
     private NSTA load(Document d) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -76,7 +74,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private class PropertyPanel extends JPanel {
-        private AbstractProperty property;
+        private final AbstractProperty property;
         private boolean enabled;
         private Component component;
 
@@ -91,7 +89,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             c.repaint();
         }
 
-        public PropertyPanel(AbstractProperty p) {
+        PropertyPanel(AbstractProperty p) {
             super();
             property = p;
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -126,7 +124,6 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     docr.fire(ChangeType.valueOf("UPDATED"));
                     return;
                 }
-                //pr.write(System.out, System.err);
                 if (component != null)
                     remove(component);
                 add(component = pr.toPanel());
@@ -145,7 +142,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         workspaces[0] = this;
         r.addListener(this);
 
-        Injector injector = new UppaalSMCStandaloneSetup().createInjectorAndDoEMFRegistration();;
+        Injector injector = new UppaalSMCStandaloneSetup().createInjectorAndDoEMFRegistration();
         rs = injector.getInstance(XtextResourceSet.class);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -162,9 +159,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         jp.add(nStates);
         add(jp);
         JButton runButton = new JButton("Run selected checks");
-        runButton.addActionListener(e -> {
-            doCheck();
-        });
+        runButton.addActionListener(e -> doCheck());
         add(runButton);
         for (AbstractProperty p : AbstractProperty.properties) {
             PropertyPanel pp = new PropertyPanel(p);
@@ -173,15 +168,12 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         }
 
         docr.addListener(this);
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-            @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F6 && e.getID() == KeyEvent.KEY_PRESSED) {
-                    doCheck();
-                    return true;
-                }
-                return false;
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+            if (e.getKeyCode() == KeyEvent.VK_F6 && e.getID() == KeyEvent.KEY_PRESSED) {
+                doCheck();
+                return true;
             }
+            return false;
         });
     }
 
@@ -243,8 +235,8 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     public void setActive(boolean selected) {
         this.selected = selected;
     }
-    public void doCheck() {
-        if (panels.stream().filter(p -> p.enabled).count() > 0) {
+    private void doCheck() {
+        if (panels.stream().anyMatch(p -> p.enabled)) {
             Document d = docr.get();
             NSTA nsta = load(d);
             UppaalSystem sys;
@@ -254,9 +246,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                 e.printStackTrace();
                 return;
             }
-            new Thread(() -> {
-                panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys));
-            }).start();
+            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys))).start();
         }
     }
 

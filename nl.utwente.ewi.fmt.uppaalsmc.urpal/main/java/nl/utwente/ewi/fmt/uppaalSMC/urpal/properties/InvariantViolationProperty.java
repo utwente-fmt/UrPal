@@ -55,14 +55,12 @@ import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil;
 
-@SanityCheck(name = "Invariant Violation", description = "")
+@SanityCheck(name = "Invariant Violation")
 public class InvariantViolationProperty extends AbstractProperty {
 	private static final String OPTIONS = "order 0\nreduction 1\nrepresentation 0\ntrace 1\nextrapolation 0\nhashsize 27\nreuse 0\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
 
 	@Override
 	public void doCheck(NSTA nstaOrig, Document doc, UppaalSystem sys, Consumer<SanityCheckResult> cb) {
-		long startTime = System.currentTimeMillis();
-		maxMem = 0;
 		NSTA nsta = EcoreUtil.copy(nstaOrig);
 		DataVariableDeclaration dvd = DeclarationsFactory.eINSTANCE.createDataVariableDeclaration();
 		dvd.setPrefix(DataVariablePrefix.META);
@@ -158,9 +156,6 @@ public class InvariantViolationProperty extends AbstractProperty {
 			UppaalSystem tSys = UppaalUtil.compile(tDoc);
 			engineQuery(tSys, "A[] (not __isViolated__)", OPTIONS, (qr, ts) -> {
 				ArrayList<SymbolicTransition> tsFinal = ts.isEmpty() ? ts : transformTrace(ts, sys);
-				System.out.println("trace size: " + tsFinal.size());
-				System.out.println("time milis: " + (System.currentTimeMillis() - startTime));
-				System.out.println("max mem: " + (maxMem));
 				cb.accept(new SanityCheckResult() {
 					@Override
 					public void write(PrintStream out, PrintStream err) {

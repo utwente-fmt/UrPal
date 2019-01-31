@@ -55,7 +55,7 @@ import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty;
 
 public class UppaalUtil {
 	public static Engine engine;
-	
+
 	static {
 		try {
 			engine = connectToEngine();
@@ -190,7 +190,7 @@ public class UppaalUtil {
 
 	public static UppaalSystem compile(Document doc) throws EngineException, IOException {
 		reconnect();
-		ArrayList<Problem> problems = new ArrayList<Problem>();
+		ArrayList<Problem> problems = new ArrayList<>();
 		UppaalSystem sys = engine.getSystem(doc, problems);
 		if (!problems.isEmpty()) {
 			boolean fatal = false;
@@ -208,7 +208,7 @@ public class UppaalUtil {
 		return sys;
 	}
 
-	public static void reconnect() throws EngineException, IOException {
+	private static void reconnect() throws EngineException, IOException {
 		engine.disconnect();
 		engine.connect();
 	}
@@ -324,7 +324,6 @@ public class UppaalUtil {
 					constr = logic.getSecondExpr();
 					current = logic.getFirstExpr();
 				} else {
-					current = null;
 					break;
 				}
 			} else {

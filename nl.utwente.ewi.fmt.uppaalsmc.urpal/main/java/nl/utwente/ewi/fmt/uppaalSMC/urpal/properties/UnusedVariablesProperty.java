@@ -21,7 +21,7 @@ import com.uppaal.model.system.UppaalSystem;
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 
-@SanityCheck(name = "Check for unused elements", description = "")
+@SanityCheck(name = "Check for unused elements")
 public class UnusedVariablesProperty extends AbstractProperty {
 
 	@Override

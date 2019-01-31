@@ -9,6 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface SanityCheck {
-	String name();
-	String description() default "";
+    String name();
 }

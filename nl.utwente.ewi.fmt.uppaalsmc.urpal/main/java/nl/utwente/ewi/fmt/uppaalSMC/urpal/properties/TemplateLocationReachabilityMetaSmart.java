@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -43,7 +40,6 @@ import org.muml.uppaal.templates.Location;
 import org.muml.uppaal.templates.LocationKind;
 import org.muml.uppaal.templates.SynchronizationKind;
 import org.muml.uppaal.templates.Template;
-import org.muml.uppaal.templates.TemplatesFactory;
 import org.muml.uppaal.types.TypeReference;
 import org.muml.uppaal.types.TypesFactory;
 
@@ -53,7 +49,6 @@ import com.uppaal.engine.QueryResult;
 import com.uppaal.model.core2.Document;
 import com.uppaal.model.core2.PrototypeDocument;
 import com.uppaal.model.io2.XMLReader;
-import com.uppaal.model.system.Process;
 import com.uppaal.model.system.SystemLocation;
 import com.uppaal.model.system.UppaalSystem;
 import com.uppaal.model.system.symbolic.SymbolicState;
@@ -63,14 +58,13 @@ import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil;
 
-@SanityCheck(name = "Template location Reachability meta smart", description = "")
+@SanityCheck(name = "Template location Reachability meta smart")
 public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 
 	private static final String OPTIONS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 0\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
 
 	@Override
 	public void doCheck(NSTA nstaOrig, Document doc, UppaalSystem sys, Consumer<SanityCheckResult> cb) {
-		long startTime = System.currentTimeMillis();
 		NSTA nsta = EcoreUtil.copy(nstaOrig);
 
 		ChannelVariableDeclaration cvdHighest = UppaalUtil.createChannelDeclaration(nsta, "_stopchan");
@@ -123,7 +117,7 @@ public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 
 			if (eTemplate.getDeclarations() == null)
 				eTemplate.setDeclarations(DeclarationsFactory.eINSTANCE.createLocalDeclarations());
-			List<Location> locationList = new ArrayList<Location>(eTemplate.getLocation());
+			List<Location> locationList = new ArrayList<>(eTemplate.getLocation());
 
 			eTemplate.getEdge().forEach(e -> {
 				if (e.getTarget() instanceof ChanceNode) {
@@ -158,7 +152,6 @@ public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 					.parse(proto);
 			UppaalSystem tSys = UppaalUtil.compile(tDoc);
 
-			maxMem = 0;
 			engineQuery(tSys, q, OPTIONS, (qr, ts) -> {
 				System.out.println("max mem: " + (maxMem));
 
@@ -184,7 +177,6 @@ public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 						SystemLocation[] locs = initState.getLocations();
 						locs[locs.length - 1] = tSys.getLocation(tSys.getNoOfProcesses() - 1, 1);
 						initState.setLocations(locs);
-						Set<com.uppaal.model.core2.Location> reachable = new HashSet<>();
 						Set<com.uppaal.model.core2.Location> unreachable = new HashSet<>();
 						for (int i = 0; i < templateLocs.size(); i++) {
 							com.uppaal.model.core2.Location loc = templateLocs.get(i);
@@ -195,15 +187,12 @@ public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 									if (qr2.getStatus() != QueryResult.OK
 											&& !((Boolean) loc.getPropertyValue("init"))) {
 										unreachable.add(loc);
-									} else {
-										reachable.add(loc);
 									}
 								});
 							} catch (IOException | EngineException e) {
 								e.printStackTrace();
 							}
 						}
-						System.out.println("time milis: " + (System.currentTimeMillis() - startTime));
 
 						cb.accept(new SanityCheckResult() {
 
@@ -234,7 +223,6 @@ public class TemplateLocationReachabilityMetaSmart extends AbstractProperty {
 						e.printStackTrace();
 					}
 				}
-				System.out.println("bazinga!");
 			});
 		} catch (EngineException | IOException | XMLStreamException e) {
 			e.printStackTrace();

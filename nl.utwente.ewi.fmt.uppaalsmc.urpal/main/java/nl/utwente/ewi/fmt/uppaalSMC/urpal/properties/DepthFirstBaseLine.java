@@ -9,20 +9,20 @@ import com.uppaal.model.system.UppaalSystem;
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 
-@SanityCheck(name = "Depth first", description = "")
+@SanityCheck(name = "Depth first")
 public class DepthFirstBaseLine extends AbstractProperty {
 
-	@Override
-	public void doCheck(NSTA nsta, Document doc, UppaalSystem sys, Consumer<SanityCheckResult> cb) {
-		long startTime = System.currentTimeMillis();
-		try {
-			engineQuery(sys, "A[](true)", DEFAULT_OPTIONS_DFS, (gf, ts) -> {
-				System.out.println("time milis: " + (System.currentTimeMillis() - startTime));
-				System.out.println("max mem: " + (maxMem));
-			});
-		} catch (IOException | EngineException e) {
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public void doCheck(NSTA nsta, Document doc, UppaalSystem sys, Consumer<SanityCheckResult> cb) {
+        long startTime = System.currentTimeMillis();
+        try {
+            engineQuery(sys, "A[](true)", DEFAULT_OPTIONS_DFS, (gf, ts) -> {
+                System.out.println("time milis: " + (System.currentTimeMillis() - startTime));
+                System.out.println("max mem: " + (maxMem));
+            });
+        } catch (IOException | EngineException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
