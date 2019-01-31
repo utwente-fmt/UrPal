@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/repo/nl.utwente.ewi.fmt.uppaalsmc.urpal
+    working_directory: ~/repo
 
     environment:
       # Customize the JVM maximum heap limit
@@ -29,6 +29,7 @@ jobs:
       - run: echo -e "Host vcs.utwente.nl\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
+      - run: cd nl.utwente.ewi.fmt.uppaalsmc.urpal
 
       # Download and cache dependencies
       - restore_cache:
