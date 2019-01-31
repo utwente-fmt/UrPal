@@ -1,3 +1,3 @@
-[submodule "uppaal-ecore-parser"]
-	path = uppaal-ecore-parser
+[submodule "parser"]
+	path = parser
 	url = git@github.com:ramononis/uppaal-ecore-parser.git

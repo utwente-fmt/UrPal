@@ -9,6 +9,9 @@
 
 
 include ':parser'
-project(':parser').projectDir = new File('../uppaal-ecore-parser/nl.utwente.ewi.fmt.uppaalsmc.parser')
+project(':parser').projectDir = new File('./parser/nl.utwente.ewi.fmt.uppaalsmc.parser')
 
-rootProject.name = 'nl.utwente.ewi.fmt.uppaalsmc.urpal'
+include ':plugin'
+project(':plugin').projectDir = new File('./plugin')
+
+rootProject.name = 'urpal'

@@ -58,7 +58,7 @@ import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil;
 
-@SanityCheck(name = "Template location Reachability meta", description = "")
+@SanityCheck(name = "Template location Reachability meta")
 public class TemplateLocationReachabilityMeta extends AbstractProperty {
 
     private static final String OPTIONS = "order 1\nreduction 1\nrepresentation 0\ntrace 1\nextrapolation 0\nhashsize 27\nreuse 0\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01";
