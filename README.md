@@ -1,19 +1,12 @@
 # UrPal
 Applying sanity checks to find commonly made errors in Uppaal models
 ## Setup
-### Eclipse IDE
-Recommended package is [Eclipse Modeling Tools](https://www.eclipse.org/downloads/packages/).  
-Install the following plugins (tested version in parentheses) :
-* Xtext Complete SDK (2.16.0.v20181203-1555)
 ### Repository initialization
 Clone the repository with the ```--recurse-submodules``` argument in order to automatically initialize and update each submodule in the repository (recommended).
-
-
-Or execute ```git submodule init && git submodule update && cd uppaal-ecore-parser && git submodule init && git submodule update``` in the repository after cloning normally to achieve the same.
-### Importing projects
-In Eclipse use "File -> Import -> (General) Existing Projects into Workspace". Select the 'UrPal' directory as the root directory and make sure the option "Search for nested projects" is enabled. Import (at least) the following projects:
-* nl.utwente.ewi.fmt.uppaalsmc
-* nl.utwente.ewi.fmt.uppaalsmc.parser
-* org.muml.uppaal
-* org.muml.uppaal.serialization
-* org.muml.uppaal.requirements (not necessary, but will resolve errors in org.muml.uppaal.serialization)
+Or execute ```git submodule init --recursive && git submodule update --init --recursive``` in the repository after cloning normally to achieve the same.
+### Environment variables
+Set an environment variable ```UPPAAL_ROOT``` to the root folder of the UPPAAL distribution (i.e. ```$UPPAAL_ROOT/uppaal.jar``` should point to the main jar file). Currently, only (4.1.20-beta14)[http://people.cs.aau.dk/~marius/beta/] works, due to it being to only version supporting plugins.
+### Build
+Run ```./gradlew build``` to build the plugin. It's that easy!
+### IDE setup
+The project is set-up using Gradle, meaning that any Java IDE suffices (we're not forced to use Eclipse YEEHAH).
