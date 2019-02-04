@@ -1,5 +1,6 @@
 plugins {
-    id 'java-library'
+	id 'java-library'
+	id 'java'
     id 'eclipse'
 }
 
@@ -23,7 +24,24 @@ repositories {
 sourceSets {
 	main {
 		java {
-			srcDir 'nl/utwente/ewi/fmt/uppaalsmc.main/java'
+			srcDir 'plugin/main/java'
 		}
 	}
+}
+
+
+task fatJar(type: Jar)  {
+	dependsOn 'parser:jar'
+	manifest {
+		attributes 'Uppaal-Plugin': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI'
+	}
+	baseName = "$project.name-all"
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
+
+task deployLocal(type: Copy) {
+	dependsOn fatJar
+	from file("$buildDir/libs/$project.name-all.jar")
+	into file("$System.env.UPPAAL_ROOT/plugins")
 }
