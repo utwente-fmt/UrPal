@@ -18,6 +18,9 @@ repositories {
 	flatDir {
 		dirs "$System.env.UPPAAL_ROOT"
 	}
+	maven {
+		url 'https://repo.eclipse.org/content/groups/releases'
+	}
 }
 
 sourceSets {

@@ -142,7 +142,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         workspaces[0] = this;
         r.addListener(this);
 
-        Injector injector = new UppaalSMCStandaloneSetup().createInjectorAndDoEMFRegistration();
+        Injector injector = UppaalSMCStandaloneSetup.doSetup();
         rs = injector.getInstance(XtextResourceSet.class);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

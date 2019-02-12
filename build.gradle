@@ -19,6 +19,9 @@ repositories {
 	flatDir {
 		dirs "$System.env.UPPAAL_ROOT"
 	}
+	maven {
+		url 'https://repo.eclipse.org/content/groups/releases'
+	}
 }
 
 sourceSets {
@@ -31,12 +34,17 @@ sourceSets {
 
 
 task fatJar(type: Jar)  {
+	
 	dependsOn 'parser:jar'
 	manifest {
 		attributes 'Uppaal-Plugin': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI'
 	}
-	baseName = "$project.name-all"
-	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	archiveBaseName = "$project.name-all"
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	} {
+		exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+	}
 	with jar
 }
 
@@ -44,4 +52,9 @@ task deployLocal(type: Copy) {
 	dependsOn fatJar
 	from file("$buildDir/libs/$project.name-all.jar")
 	into file("$System.env.UPPAAL_ROOT/plugins")
+}
+
+task runUppaal(type: JavaExec, dependsOn: deployLocal)  {
+	main = "-jar"
+	args "$System.env.UPPAAL_ROOT/uppaal.jar"
 }
