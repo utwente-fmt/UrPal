@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+chan get_hammer, put_hammer, get_mallet, put_mallet;</declaration>
+	<template>
+		<name>Tool</name>
+		<parameter>chan &amp;get, chan &amp;put</parameter>
+		<location id="id0" x="-59" y="-127">
+			<name x="-69" y="-161">taken</name>
+		</location>
+		<location id="id1" x="-204" y="-127">
+			<name x="-214" y="-161">free</name>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-144" y="-76">put?</label>
+			<nail x="-59" y="-59"/>
+			<nail x="-204" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-153" y="-153">put?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Worker</name>
+		<declaration>// Place local declarations here.
+clock x;</declaration>
+		<location id="id2" x="263" y="51">
+			<name x="272" y="25">work_av_hammer</name>
+			<label kind="invariant" x="212" y="59">x&lt;=-12</label>
+		</location>
+		<location id="id3" x="263" y="110">
+			<name x="280" y="85">work_hard</name>
+			<label kind="invariant" x="238" y="127">x&lt;=22</label>
+		</location>
+		<location id="id4" x="136" y="110">
+			<name x="110" y="136">hard</name>
+		</location>
+		<location id="id5" x="263" y="-59">
+			<name x="272" y="-85">work_av_mallet</name>
+			<label kind="invariant" x="170" y="-76">x &lt;= 17</label>
+		</location>
+		<location id="id6" x="263" y="-119">
+			<name x="280" y="-144">work_easy</name>
+			<label kind="invariant" x="212" y="-153">x&lt;=7</label>
+		</location>
+		<location id="id7" x="136" y="-119">
+			<name x="126" y="-153">easy</name>
+			<urgent/>
+		</location>
+		<location id="id8" x="136" y="0">
+			<name x="93" y="-34">average</name>
+		</location>
+		<location id="id9" x="0" y="0">
+			<name x="-59" y="-17">begin</name>
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id9"/>
+			<label kind="guard" x="314" y="127">x&gt;=20</label>
+			<label kind="synchronisation" x="280" y="110">put_hammer!</label>
+			<nail x="391" y="110"/>
+			<nail x="391" y="-170"/>
+			<nail x="0" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id9"/>
+			<label kind="guard" x="297" y="68">x&gt;=10</label>
+			<label kind="synchronisation" x="280" y="51">put_hammer!</label>
+			<nail x="390" y="51"/>
+			<nail x="390" y="-170"/>
+			<nail x="-1" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id9"/>
+			<label kind="guard" x="289" y="-42">x&lt;=15</label>
+			<label kind="synchronisation" x="289" y="-59">put_mallet?</label>
+			<nail x="390" y="-59"/>
+			<nail x="390" y="-170"/>
+			<nail x="-1" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id9"/>
+			<label kind="guard" x="272" y="-161">x&gt;=5</label>
+			<nail x="263" y="-170"/>
+			<nail x="0" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="153" y="110">get_hammer!</label>
+			<label kind="assignment" x="178" y="85">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="136" y="34">get_hammer!</label>
+			<label kind="assignment" x="195" y="8">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="144" y="-59">get_mallet!</label>
+			<label kind="assignment" x="204" y="-34">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="204" y="-119">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id4"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+worker1 = Worker();
+worker2 = Worker();
+hammer = Tool(get_hammer, put_hammer);
+mallet = Tool(get_mallet, put_mallet);
+// List one or more processes to be composed into a system.
+system worker1, worker2, hammer, mallet;</system>
+	<queries>
+		<query>
+			<formula>A[](belt.start imply A&lt;&gt; belt.end)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (belt.end &amp;&amp; jobber1.begin &amp;&amp; jobber2.begin &amp;&amp; now &gt;= 100)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[](!deadlock)</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

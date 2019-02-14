@@ -54,7 +54,14 @@ task deployLocal(type: Copy) {
 	into file("$System.env.UPPAAL_ROOT/plugins")
 }
 
+def file() {
+	if (project.hasProperty("file")){
+		return "$file"
+	}
+	''
+}
+
 task runUppaal(type: JavaExec, dependsOn: deployLocal)  {
 	main = "-jar"
-	args "$System.env.UPPAAL_ROOT/uppaal.jar"
+	args "$System.env.UPPAAL_ROOT/uppaal.jar", file()
 }
