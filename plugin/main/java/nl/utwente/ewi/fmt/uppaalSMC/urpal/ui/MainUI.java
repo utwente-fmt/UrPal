@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import kotlin.Unit;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -113,7 +114,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             if (nsta == null) {
                 nsta = load(doc = docr.get());
                 try {
-                    sys = UppaalUtil.compile(doc);
+                    sys = UppaalUtil.INSTANCE.compile(doc);
                 } catch (EngineException | IOException e) {
                     e.printStackTrace();
                     return;
@@ -122,12 +123,13 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             property.doCheck(nsta, doc, sys, pr -> {
                 if (pr == null) {
                     docr.fire(ChangeType.valueOf("UPDATED"));
-                    return;
+                    return Unit.INSTANCE;
                 }
                 if (component != null)
                     remove(component);
                 add(component = pr.toPanel());
                 redoStuff();
+                return Unit.INSTANCE;
             });
         }
     }
@@ -150,18 +152,18 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         JPanel jp = new JPanel();
         jp.add(new JLabel("States to explore per check (<=0 for unlimited): "));
         JTextField nStates = new JFormattedTextField(NumberFormat.getIntegerInstance());
-        nStates.setText("" + AbstractProperty.STATE_SPACE_SIZE);
+        nStates.setText("" + AbstractProperty.Companion.getSTATE_SPACE_SIZE());
         nStates.setPreferredSize(new Dimension(128, nStates.getPreferredSize().height));
         nStates.addPropertyChangeListener("value", evt -> {
             System.out.println(evt.getNewValue());
-            AbstractProperty.STATE_SPACE_SIZE = Integer.parseInt(evt.getNewValue().toString());
+            AbstractProperty.Companion.setSTATE_SPACE_SIZE(Integer.parseInt(evt.getNewValue().toString()));
         });
         jp.add(nStates);
         add(jp);
         JButton runButton = new JButton("Run selected checks");
         runButton.addActionListener(e -> doCheck());
         add(runButton);
-        for (AbstractProperty p : AbstractProperty.properties) {
+        for (AbstractProperty p : AbstractProperty.Companion.getProperties()) {
             PropertyPanel pp = new PropertyPanel(p);
             add(pp);
             panels.add(pp);
@@ -241,7 +243,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             NSTA nsta = load(d);
             UppaalSystem sys;
             try {
-                sys = UppaalUtil.compile(d);
+                sys = UppaalUtil.INSTANCE.compile(d);
             } catch (EngineException | IOException e) {
                 e.printStackTrace();
                 return;
