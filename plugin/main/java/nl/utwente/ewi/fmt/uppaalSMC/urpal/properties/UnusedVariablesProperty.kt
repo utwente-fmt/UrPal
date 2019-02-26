@@ -28,8 +28,8 @@ class UnusedVariablesProperty : AbstractProperty() {
 			val sb = StringBuilder(it.name.replace("nta.", "") + "(" + it.eContainer().javaClass.simpleName
 					.replace("Declaration", "")
 					.replace("Impl", "") + ")")
-			var obj: EObject = it
-			generateSequence { obj = obj.eContainer(); obj }
+			var obj: EObject? = it
+			generateSequence { obj = obj?.eContainer(); obj }
 					.filterIsInstance<NamedElement>().forEach { c ->
 				sb.insert(0, c.name + ".")
 			}

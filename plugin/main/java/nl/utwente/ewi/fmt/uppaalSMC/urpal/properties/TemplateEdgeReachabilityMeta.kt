@@ -40,6 +40,7 @@ import com.uppaal.model.system.UppaalSystem
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import kotlin.math.max
 
 @SanityCheck(name = "Template edge Reachability meta")
 class TemplateEdgeReachabilityMeta : AbstractProperty() {
@@ -121,10 +122,10 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
             offset.addAndGet(eTemplate.edge.size)
         }
 
-        index.sizeExpression = UppaalUtil.createLiteral("${templateEdges.size}")
-        (varMeta.index[0] as ValueIndex).sizeExpression = UppaalUtil.createLiteral("${templateEdges.size}")
+        index.sizeExpression = UppaalUtil.createLiteral("${max(templateEdges.size, 1)}")
+        (varMeta.index[0] as ValueIndex).sizeExpression = UppaalUtil.createLiteral("${max(templateEdges.size, 1)}")
 
-        val q = "E<>(forall (i : int[0, ${templateEdges.size - 1}]) _f[i])"
+        val q = if (templateEdges.size == 0) "E<>(true)" else "E<>(forall (i : int[0, ${templateEdges.size - 1}]) _f[i])"
         try {
             val temp = File.createTempFile("edgetest", ".xml")
             val bw = BufferedWriter(FileWriter(temp))

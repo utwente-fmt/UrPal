@@ -114,11 +114,13 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
             }
         }
         val qs = HashSet<String>()
+        qs.add("true")
 
         sys.processes.forEach { p ->
             val name = p.name
             val lSize = p.locations.size
-            qs.add("(forall (i : int[0, ${lSize - 1}]) $name._f[i])")
+            if (lSize > 0)
+                qs.add("(forall (i : int[0, ${lSize - 1}]) $name._f[i])")
         }
 
         val q = qs.joinToString(" && ", "E<> (", ")")

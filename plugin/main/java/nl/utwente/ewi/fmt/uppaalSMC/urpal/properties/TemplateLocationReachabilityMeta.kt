@@ -127,7 +127,7 @@ class TemplateLocationReachabilityMeta : AbstractProperty() {
         index.sizeExpression = UppaalUtil.createLiteral("${templateLocs.size}")
         (varMeta.index[0] as ValueIndex).sizeExpression = UppaalUtil.createLiteral("${templateLocs.size}")
 
-        val q = "E<>(forall (i : int[0, ${templateLocs.size - 1}]) _f[i])"
+        val q = if (templateLocs.size == 1) "E<>(true)" else "E<>(forall (i : int[0, ${templateLocs.size - 1}]) _f[i])"
         try {
             val temp = File.createTempFile("loctest", ".xml")
             val bw = BufferedWriter(FileWriter(temp))

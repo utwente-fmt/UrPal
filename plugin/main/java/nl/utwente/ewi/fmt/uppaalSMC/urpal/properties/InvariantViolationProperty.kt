@@ -123,7 +123,7 @@ class InvariantViolationProperty : AbstractProperty() {
                 val eGood = TemplatesFactory.eINSTANCE.createEdge()
                 eGood.source = lCopy
                 eGood.target = target
-                eGood.guard = UppaalUtil.invariantToGuard(target.invariant)
+                eGood.guard = UppaalUtil.invariantToGuard(EcoreUtil.copy(target.invariant))
                 UppaalUtil.addSynchronization(eGood, cvdHighest.variable[0], SynchronizationKind.SEND)
                 t.edge.add(eGood)
                 i++

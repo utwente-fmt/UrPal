@@ -45,12 +45,28 @@ import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
 object UppaalUtil {
     var engine: Engine = connectToEngine()
 
-    fun getTemplates(doc: Document): Sequence<AbstractTemplate> {
-        var current = doc.templates
+    fun Document.getTemplatesSequence(): Sequence<AbstractTemplate> {
+        var current = templates
         return generateSequence {
             val result = current
             current = current?.next as? AbstractTemplate
             result
+        }
+    }
+
+    fun AbstractTemplate.getLocations(): Sequence<com.uppaal.model.core2.Location> {
+        var current = first
+        return generateSequence {
+            while (current != null) {
+                if (current as? com.uppaal.model.core2.Location != null) {
+                    val result = current
+                    current = current?.next
+                    return@generateSequence result as com.uppaal.model.core2.Location
+                } else {
+                    current = current?.next
+                }
+            }
+            null
         }
     }
 

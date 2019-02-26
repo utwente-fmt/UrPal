@@ -31,13 +31,14 @@ class DeadlockProperty : AbstractProperty() {
                     cbs.add { l.location.setProperty("name", null) }
                 }
                 result
-            }
+            }.map { "${p.name}.${it.name}" }
         }
         val query = if (locs.isEmpty()) {
             "A[] (!deadlock)"
         } else {
             "A[] (deadlock imply ${locs.joinToString(" or ")})"
         }
+        UppaalUtil.reconnect()
         AbstractProperty.engineQuery(sys, query, "trace 1") { qr, t ->
             cb(object : SanityCheckResult() {
 

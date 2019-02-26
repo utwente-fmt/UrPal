@@ -28,3 +28,10 @@ build
 
 bin/
 !gradle/wrapper/gradle-wrapper.jar
+
+bla.xml
+jobber.xml
+jobberbad.xml
+zeno.xml
+out/
+plugin/out

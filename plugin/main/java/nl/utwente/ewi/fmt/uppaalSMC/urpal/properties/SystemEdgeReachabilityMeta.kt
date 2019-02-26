@@ -143,7 +143,7 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
 
             AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
             AbstractProperty.engineQuery(tSys, q, OPTIONS) { qr, _ ->
-                if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
+                fun doOk() {
                     sys.processes
                             .flatMap { it.edges.map { e -> e.edge } }.distinct()
                             .forEach { l -> l.setProperty("color", null) }
@@ -160,6 +160,9 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                             return p
                         }
                     })
+                }
+                if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
+                    doOk()
                 } else {
                     try {
                         AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
@@ -188,6 +191,10 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                                         reachable.add(sysEdge.edge)
                                     }
                                 }
+                            }
+                            if (unreachableSysEdges.isEmpty()) {
+                                doOk()
+                                return@engineQuery
                             }
                             allEdges.forEach { e ->
                                 e.setProperty("color", if (unreachable.contains(e)) {
