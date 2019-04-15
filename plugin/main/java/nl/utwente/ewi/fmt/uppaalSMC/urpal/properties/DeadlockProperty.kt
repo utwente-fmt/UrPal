@@ -15,6 +15,7 @@ import com.uppaal.model.core2.Document
 import com.uppaal.model.system.UppaalSystem
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
 
 @SanityCheck(name = "Deadlocks")
@@ -40,14 +41,15 @@ class DeadlockProperty : AbstractProperty() {
         }
         UppaalUtil.reconnect()
         AbstractProperty.engineQuery(sys, query, "trace 1") { qr, t ->
+            cbs.forEach { it() }
             cb(object : SanityCheckResult() {
 
                 override fun write(out: PrintStream, err: PrintStream) {
                     if (qr.status == QueryResult.OK) {
                         out.println("No unwanted deadlocks found!")
                     } else {
-                        err.println("Unwanted deadlocks found! See trace below:")
-                        t.subList(1, t.size).forEach { System.err.println(it.traceFormat()) }
+                        err.println("Unwanted deadlocks found! See trace in the GUI:")
+
                     }
                 }
 
@@ -64,16 +66,13 @@ class DeadlockProperty : AbstractProperty() {
                         p.add(label)
                         val button = JButton("Load trace")
                         button.addActionListener {
-                            val sim = UppaalUtil.getSystemInspector(button)!!.simulator
-                            sim.uppaalSystem.set(sys)
-                            sim.a(t, 0)
+                            MainUI.getTracer().set(UppaalUtil.transformTrace(t, sys))
                         }
                         p.add(button)
                     }
                     return p
                 }
             })
-            cbs.forEach { it() }
         }
 
     }

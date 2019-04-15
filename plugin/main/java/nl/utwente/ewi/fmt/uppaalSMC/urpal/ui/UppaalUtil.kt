@@ -36,7 +36,12 @@ import com.uppaal.model.core2.AbstractTemplate
 import com.uppaal.model.core2.Document
 import com.uppaal.model.core2.Edge
 import com.uppaal.model.core2.Node
+import com.uppaal.model.system.SystemEdgeSelect
+import com.uppaal.model.system.SystemLocation
 import com.uppaal.model.system.UppaalSystem
+import com.uppaal.model.system.symbolic.SymbolicState
+import com.uppaal.model.system.symbolic.SymbolicTrace
+import com.uppaal.model.system.symbolic.SymbolicTransition
 import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
@@ -302,5 +307,37 @@ object UppaalUtil {
         return invariant
 
     }
+    fun transformTrace(ts: SymbolicTrace, origSys: UppaalSystem): SymbolicTrace {
+        var prev: SymbolicState? = null
+        val result = SymbolicTrace()
+        val it = ts.iterator()
+        while (it.hasNext()) {
+            val curr = it.next()
+            val edgesWs = curr.edges
+            if (prev != null) {
+                for (i in edgesWs.indices) {
+                    val edgeWs = edgesWs[i]
+                    val origProccess = origSys.getProcess(edgeWs.process.index)
+                    val origEdge = origProccess.getEdge(edgeWs.index)
 
+                    edgesWs[i] = SystemEdgeSelect(origEdge, edgeWs.selectList)
+                }
+            }
+            var transTarget: SymbolicState
+
+            var locations: Array<SystemLocation>
+
+            transTarget = curr.target
+            locations = transTarget.locations
+            for (i in locations.indices) {
+                locations[i] = origSys.getProcess(i).getLocation(locations[i].index)
+            }
+
+            val origTarget = SymbolicState(locations, transTarget.variableValues,
+                    transTarget.polyhedron)
+            result.add(SymbolicTransition(prev, edgesWs, origTarget))
+            prev = origTarget
+        }
+        return result
+    }
 }

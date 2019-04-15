@@ -35,3 +35,5 @@ jobberbad.xml
 zeno.xml
 out/
 plugin/out
+common-name.*
+playground

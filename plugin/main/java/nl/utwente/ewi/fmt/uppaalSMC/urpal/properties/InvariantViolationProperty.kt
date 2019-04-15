@@ -37,10 +37,12 @@ import com.uppaal.model.system.SystemEdgeSelect
 import com.uppaal.model.system.SystemLocation
 import com.uppaal.model.system.UppaalSystem
 import com.uppaal.model.system.symbolic.SymbolicState
+import com.uppaal.model.system.symbolic.SymbolicTrace
 import com.uppaal.model.system.symbolic.SymbolicTransition
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
 
 @SanityCheck(name = "Invariant Violation")
@@ -140,7 +142,7 @@ class InvariantViolationProperty : AbstractProperty() {
                     .parse(proto)
             val tSys = UppaalUtil.compile(tDoc)
             AbstractProperty.engineQuery(tSys, "A[] (not __isViolated__)", OPTIONS) { qr, ts ->
-                val tsFinal = if (ts.isEmpty()) ts else transformTrace(ts, sys)
+                val tsFinal = if (ts.isEmpty) ts else transformTrace(ts, sys)
                 cb(object : SanityCheckResult() {
                     override fun write(out: PrintStream, err: PrintStream) {
                         if (qr.status == QueryResult.MAYBE_OK || qr.status == QueryResult.OK) {
@@ -170,9 +172,7 @@ class InvariantViolationProperty : AbstractProperty() {
                             p.add(label)
                             val button = JButton("Load trace")
                             button.addActionListener {
-                                val sim = UppaalUtil.getSystemInspector(button)!!.simulator
-                                sim.uppaalSystem.set(sys)
-                                sim.a(tsFinal, 0)
+                                MainUI.getTracer().set(tsFinal)
                             }
                             p.add(button)
 
@@ -191,9 +191,9 @@ class InvariantViolationProperty : AbstractProperty() {
 
     }
 
-    private fun transformTrace(ts: ArrayList<SymbolicTransition>, origSys: UppaalSystem): ArrayList<SymbolicTransition> {
+    private fun transformTrace(ts: SymbolicTrace, origSys: UppaalSystem): SymbolicTrace {
         var prev: SymbolicState? = null
-        val result = ArrayList<SymbolicTransition>()
+        val result = SymbolicTrace()
         val it = ts.iterator()
         outer@ while (it.hasNext()) {
             var curr = it.next()

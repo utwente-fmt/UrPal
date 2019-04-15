@@ -62,16 +62,10 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
 
         val counterVar = UppaalUtil.addCounterVariable(nstaTrans)
 
-        nstaTrans.template.forEach { eTemplate ->
-
-            if (eTemplate === controller)
-                return@forEach
+        nstaTrans.template.filter { it !== controller && it.edge.size != 0 }.forEach { eTemplate ->
             if (eTemplate.declarations == null)
                 eTemplate.declarations = DeclarationsFactory.eINSTANCE.createLocalDeclarations()
             val edgeList = ArrayList(eTemplate.edge)
-            if (edgeList.size == 0) {
-                return@forEach
-            }
 
             var dvd = DeclarationsFactory.eINSTANCE.createDataVariableDeclaration()
             val flagVar = UppaalUtil.createVariable("_fl")
@@ -169,7 +163,7 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
-                            val ss = ts2[ts2.size - 1].target
+                            val ss = ts2[ts2.size() - 1].target
                             val vars = tSys.variables
                             if (ss.variableValues.size != vars.size) {
                                 throw RuntimeException("Shits really on fire yo!")
@@ -194,36 +188,36 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                             }
                             if (unreachableSysEdges.isEmpty()) {
                                 doOk()
-                                return@engineQuery
-                            }
-                            allEdges.forEach { e ->
-                                e.setProperty("color", if (unreachable.contains(e)) {
-                                    if (reachable.contains(e)) Color.YELLOW else Color.RED
-                                } else null)
-                            }
-                            cb(object : SanityCheckResult() {
+                            } else {
 
-                                override fun write(out: PrintStream, err: PrintStream) {
-                                    err.println("Unreachable edges found:")
-                                    unreachableSysEdges
-                                            .forEach { sl -> out.println(sl.processName + "(" + sl.name + ")") }
+                                allEdges.forEach { e ->
+                                    e.setProperty("color", if (unreachable.contains(e)) {
+                                        if (reachable.contains(e)) Color.YELLOW else Color.RED
+                                    } else null)
                                 }
+                                cb(object : SanityCheckResult() {
 
-                                override fun toPanel(): JPanel {
-                                    val p = JPanel()
-                                    p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
-                                    val label = JLabel("Unreachable edges found:")
-                                    label.foreground = Color.RED
-                                    p.add(label)
-                                    unreachableSysEdges.forEach { sl ->
-                                        val locLabel = JLabel("\t" + sl.processName + "(" + sl.name + ")")
-                                        locLabel.foreground = Color.RED
-                                        p.add(locLabel)
+                                    override fun write(out: PrintStream, err: PrintStream) {
+                                        err.println("Unreachable edges found:")
+                                        unreachableSysEdges
+                                                .forEach { sl -> out.println(sl.processName + "(" + sl.name + ")") }
                                     }
 
-                                    return p
-                                }
-                            })
+                                    override fun toPanel(): JPanel {
+                                        val p = JPanel()
+                                        p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
+                                        val label = JLabel("Unreachable edges found:")
+                                        label.foreground = Color.RED
+                                        p.add(label)
+                                        unreachableSysEdges.forEach { sl ->
+                                            val locLabel = JLabel("\t" + sl.processName + "(" + sl.name + ")")
+                                            locLabel.foreground = Color.RED
+                                            p.add(locLabel)
+                                        }
+                                        return p
+                                    }
+                                })
+                            }
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()

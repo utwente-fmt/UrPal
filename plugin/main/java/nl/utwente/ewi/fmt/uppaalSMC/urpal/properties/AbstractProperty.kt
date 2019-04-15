@@ -9,8 +9,10 @@ import com.uppaal.engine.QueryResult
 import com.uppaal.model.core2.Document
 import com.uppaal.model.core2.Query
 import com.uppaal.model.system.UppaalSystem
+import com.uppaal.model.system.concrete.ConcreteTrace
 import com.uppaal.model.system.concrete.ConcreteTransitionRecord
 import com.uppaal.model.system.symbolic.SymbolicState
+import com.uppaal.model.system.symbolic.SymbolicTrace
 import com.uppaal.model.system.symbolic.SymbolicTransition
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
@@ -35,18 +37,16 @@ abstract class AbstractProperty {
 
         @Throws(IOException::class, EngineException::class)
         internal fun engineQuery(sys: UppaalSystem, init: SymbolicState?, query: String, options: String,
-                                 cb: (QueryResult, ArrayList<SymbolicTransition>) -> Unit) {
-            val trace = ArrayList<SymbolicTransition>()
+                                 cb: (QueryResult, SymbolicTrace) -> Unit) {
+            var trace = SymbolicTrace()
 
             val qf = object : QueryFeedback {
 
-                override fun setTrace(paramChar: Char, paramString: String?, paramArrayList: ArrayList<SymbolicTransition>,
-                                      paramInt: Int, paramQueryResult: QueryResult) {
-                    trace.addAll(paramArrayList)
+                override fun setTrace(paramChar: Char, paramString: String?, paramConcreteTrace: ConcreteTrace, paramQueryResult: QueryResult) {
                 }
 
-                override fun setTraceSMC(paramChar: Char, paramString: String,
-                                         paramArrayList: ArrayList<ConcreteTransitionRecord>, paramInt: Int, paramQueryResult: QueryResult) {
+                override fun setTrace(paramChar: Char, paramString: String?, paramSymbolicTrace: SymbolicTrace, paramQueryResult: QueryResult) {
+                    trace = paramSymbolicTrace
                 }
 
                 override fun setSystemInfo(paramLong1: Long, paramLong2: Long, paramLong3: Long) {}
@@ -80,7 +80,7 @@ abstract class AbstractProperty {
 
         @Throws(IOException::class, EngineException::class)
         internal fun engineQuery(sys: UppaalSystem, query: String, options: String,
-                                 cb: (QueryResult, ArrayList<SymbolicTransition>) -> Unit) {
+                                 cb: (QueryResult, SymbolicTrace) -> Unit) {
             engineQuery(sys, null, query, options, cb)
         }
     }

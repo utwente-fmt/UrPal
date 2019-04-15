@@ -164,7 +164,7 @@ class TemplateLocationReachabilityMeta : AbstractProperty() {
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
-                            val ss = ts2[ts2.size - 1].target
+                            val ss = ts2[ts2.size() - 1].target
                             val vars = tSys.variables
                             if (ss.variableValues.size != vars.size) {
                                 throw RuntimeException("Shits really on fire yo!")

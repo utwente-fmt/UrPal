@@ -62,10 +62,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
 
         val counterVar = UppaalUtil.addCounterVariable(nstaTrans)
 
-        nstaTrans.template.forEach { eTemplate ->
-
-            if (eTemplate === controller)
-                return@forEach
+        nstaTrans.template.filter {it !== controller}.forEach { eTemplate ->
             eTemplate.declarations = eTemplate.declarations ?: DeclarationsFactory.eINSTANCE.createLocalDeclarations()
             val locationList = eTemplate.location
 
@@ -99,10 +96,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
             edge.update.add(ass)
             UppaalUtil.addSynchronization(edge, cvd.variable[0], SynchronizationKind.RECEIVE)
             eTemplate.init = newInit
-            eTemplate.edge.forEach { e ->
-                if (e.target is ChanceNode) {
-                    return@forEach
-                }
+            eTemplate.edge.filter {it !is ChanceNode}.forEach { e ->
                 val ass2 = ExpressionsFactory.eINSTANCE.createAssignmentExpression()
                 ass2.operator = AssignmentOperator.EQUAL
                 val id = UppaalUtil.createIdentifier(varMeta)
@@ -160,7 +154,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
-                            val ss = ts2[ts2.size - 1].target
+                            val ss = ts2[ts2.size() - 1].target
                             val vars = tSys.variables
                             if (ss.variableValues.size != vars.size) {
                                 throw RuntimeException("Shits really on fire yo!")

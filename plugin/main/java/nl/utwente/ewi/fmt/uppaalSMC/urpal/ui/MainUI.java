@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import com.uppaal.engine.Problem;
+import com.uppaal.model.system.symbolic.SymbolicTrace;
 import kotlin.Unit;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.eclipse.emf.common.util.URI;
@@ -53,6 +55,19 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     private final Set<PropertyPanel> panels = new HashSet<>();
     private ResourceSet rs;
     private Repository<Document> docr;
+
+    public static Repository<SymbolicTrace> getTracer() {
+        return tracer;
+    }
+    private static Repository<SymbolicTrace> tracer;
+    public static Repository<Problem> getProblemr() {
+        return problemr;
+    }
+    private static Repository<Problem> problemr;
+    public static Repository<UppaalSystem> getSystemr() {
+        return systemr;
+    }
+    private static Repository<UppaalSystem> systemr;
     private boolean selected;
     private double zoom;
 
@@ -141,6 +156,8 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     public MainUI(Registry r) {
         super();
         docr = r.getRepository("EditorDocument");
+        tracer = r.getRepository("SymbolicTrace");
+        problemr = r.getRepository("EditorProblems");
         workspaces[0] = this;
         r.addListener(this);
 
