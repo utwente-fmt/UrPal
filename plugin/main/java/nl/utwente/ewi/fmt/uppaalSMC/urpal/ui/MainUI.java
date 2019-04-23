@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,10 +61,10 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         return tracer;
     }
     private static Repository<SymbolicTrace> tracer;
-    public static Repository<Problem> getProblemr() {
+    public static Repository<ArrayList<Problem>> getProblemr() {
         return problemr;
     }
-    private static Repository<Problem> problemr;
+    private static Repository<ArrayList<Problem>> problemr;
     public static Repository<UppaalSystem> getSystemr() {
         return systemr;
     }

@@ -27,8 +27,7 @@ abstract class AbstractProperty {
                 TemplateLocationReachabilityMeta(),
                 SystemEdgeReachabilityMeta(),
                 TemplateEdgeReachabilityMeta(),
-                InvariantViolationProperty(), UnusedVariablesProperty(),
-                OverlappingElements())
+                InvariantViolationProperty(), UnusedVariablesProperty())
         internal const val DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         internal const val DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         var STATE_SPACE_SIZE = 0

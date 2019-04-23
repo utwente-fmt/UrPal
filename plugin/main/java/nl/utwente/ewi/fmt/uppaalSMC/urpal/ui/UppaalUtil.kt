@@ -7,10 +7,6 @@ import java.net.URISyntaxException
 import java.util.ArrayList
 
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.muml.uppaal.declarations.ChannelVariableDeclaration
-import org.muml.uppaal.declarations.DataVariablePrefix
-import org.muml.uppaal.declarations.DeclarationsFactory
-import org.muml.uppaal.declarations.Variable
 import org.muml.uppaal.expressions.CompareExpression
 import org.muml.uppaal.expressions.CompareOperator
 import org.muml.uppaal.expressions.Expression
@@ -46,17 +42,21 @@ import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.util.EObjectContainmentEList
+import org.eclipse.xtext.nodemodel.INode
+import org.eclipse.xtext.nodemodel.impl.RootNode
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.eclipse.xtext.util.LineAndColumn
+import org.muml.uppaal.declarations.*
+import java.lang.Exception
+import kotlin.reflect.KProperty1
 
 object UppaalUtil {
     var engine: Engine = connectToEngine()
 
-    fun Document.getTemplatesSequence(): Sequence<AbstractTemplate> {
-        var current = templates
-        return generateSequence {
-            val result = current
-            current = current?.next as? AbstractTemplate
-            result
-        }
+    fun Document.getTemplatesSequence() = generateSequence(templates) {
+        it.next as? AbstractTemplate
     }
 
     fun AbstractTemplate.getLocations(): Sequence<com.uppaal.model.core2.Location> {
@@ -307,6 +307,7 @@ object UppaalUtil {
         return invariant
 
     }
+
     fun transformTrace(ts: SymbolicTrace, origSys: UppaalSystem): SymbolicTrace {
         var prev: SymbolicState? = null
         val result = SymbolicTrace()
@@ -339,5 +340,73 @@ object UppaalUtil {
             prev = origTarget
         }
         return result
+    }
+
+    private val classToBeginString = mapOf(GlobalDeclarations::class to "<declaration>",
+            org.muml.uppaal.templates.AbstractTemplate::class to "<parameter>",
+            LocalDeclarations::class to "<declaration>",
+            SystemDeclarations::class to "<system>")
+
+    fun buildProblem(obj: EObject, description: String): Problem {
+        var startTag: String? = null
+        val ancestry = generateSequence(obj) { it.eContainer() }
+        val container = ancestry.first {
+            classToBeginString.keys.any { k ->
+                val result = k.isInstance(it)
+                startTag = classToBeginString[k]
+                result
+            }
+        }
+        if (startTag == null) {
+            throw Exception("No xml container")
+        }
+        val containerNode = NodeModelUtils.getNode(container)
+        val startTagNode = containerNode.children.first { it.text == startTag }
+
+        val node = NodeModelUtils.getNode(obj)
+        val containerNodeBeginOffset = containerNode.totalOffset
+        val blockBeginOffset = startTagNode.endOffset - containerNodeBeginOffset
+        val varEndOffset = node.endOffset - containerNodeBeginOffset
+
+        val subString = containerNode.text.subSequence(blockBeginOffset, varEndOffset)
+        var line = 1
+        var column = 1
+        var offsetToCheck = node.offset - startTagNode.endOffset
+        var beginLineAndColumn: LineAndColumn? = null
+        run loop@{
+            subString.forEachIndexed { i, it ->
+                if (i == offsetToCheck) {
+                    if (beginLineAndColumn != null) {
+                        return@loop
+                    } else {
+                        beginLineAndColumn = LineAndColumn.from(line, column)
+                        offsetToCheck = node.endOffset - startTagNode.endOffset
+                        line = 1
+                        column = 1
+                    }
+                }
+                if (it == '\n') {
+                    line++
+                    column = 1
+                } else {
+                    column++
+                }
+            }
+        }
+        var currentXpath = ""
+        ancestry.forEach {
+            currentXpath = when (it) {
+                is GlobalDeclarations -> "/declaration"
+                is NSTA -> "/nta"
+                is Parameter -> "/parameter"
+                is Template -> "/template[${(it.eContainer() as NSTA).template.indexOf(it) + 1}]"
+                is Expression -> ""
+                is Variable -> ""
+                is Declaration -> ""
+                else -> TODO("$it")
+            } + currentXpath
+        }
+
+        return Problem("error", currentXpath, beginLineAndColumn!!.line, beginLineAndColumn!!.column, line, column, description)
     }
 }

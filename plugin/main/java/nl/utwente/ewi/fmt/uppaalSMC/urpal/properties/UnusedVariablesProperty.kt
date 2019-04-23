@@ -3,6 +3,8 @@ package nl.utwente.ewi.fmt.uppaalSMC.urpal.properties
 import com.uppaal.model.core2.Document
 import com.uppaal.model.system.UppaalSystem
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.muml.uppaal.core.NamedElement
@@ -17,13 +19,16 @@ import javax.swing.JPanel
 class UnusedVariablesProperty : AbstractProperty() {
 	override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
 		val unusedVars = mutableListOf<Variable>()
+		val problems = ArrayList(MainUI.getProblemr().get())
 		nsta.eAllContents().forEachRemaining {
 			if (it is Variable) {
 				if (EcoreUtil.UsageCrossReferencer.find(it, nsta).isEmpty()) {
+					problems.add(UppaalUtil.buildProblem(it, "unused variable"))
 					unusedVars.add(it)
 				}
 			}
 		}
+		if (unusedVars.isNotEmpty()) MainUI.getProblemr().set(problems)
 		val qualifiedNames = unusedVars.map  {
 			val sb = StringBuilder(it.name.replace("nta.", "") + "(" + it.eContainer().javaClass.simpleName
 					.replace("Declaration", "")
