@@ -1,7 +1,6 @@
 package nl.utwente.ewi.fmt.uppaalSMC.urpal.properties
 
 import java.io.IOException
-import java.util.ArrayList
 
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.QueryFeedback
@@ -10,13 +9,11 @@ import com.uppaal.model.core2.Document
 import com.uppaal.model.core2.Query
 import com.uppaal.model.system.UppaalSystem
 import com.uppaal.model.system.concrete.ConcreteTrace
-import com.uppaal.model.system.concrete.ConcreteTransitionRecord
 import com.uppaal.model.system.symbolic.SymbolicState
 import com.uppaal.model.system.symbolic.SymbolicTrace
-import com.uppaal.model.system.symbolic.SymbolicTransition
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
 abstract class AbstractProperty {
 

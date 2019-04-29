@@ -39,7 +39,7 @@ import com.uppaal.model.system.UppaalSystem
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 import kotlin.math.max
 
 @SanityCheck(name = "Template edge Reachability meta")

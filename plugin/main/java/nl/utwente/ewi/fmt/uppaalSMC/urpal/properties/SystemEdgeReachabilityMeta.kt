@@ -37,7 +37,7 @@ import com.uppaal.model.system.UppaalSystem
 import nl.utwente.ewi.fmt.uppaalSMC.ExponentialLocation
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
 @SanityCheck(name = "System edge Reachability meta")
 class SystemEdgeReachabilityMeta : AbstractProperty() {
