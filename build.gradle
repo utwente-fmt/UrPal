@@ -4,6 +4,7 @@ plugins {
     id 'eclipse'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
 	id 'net.researchgate.release' version '2.6.0'
+	id 'net.wooga.github' version '1.3.0'
 }
 
 dependencies {
@@ -43,7 +44,7 @@ task fatJar(type: Jar)  {
 	manifest {
 		attributes 'Uppaal-Plugin': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI'
 	}
-	archiveBaseName = "$project.name-all"
+	archiveBaseName = "$project.name"
 	from {
 		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 	} {
@@ -54,7 +55,7 @@ task fatJar(type: Jar)  {
 
 task deployLocal(type: Copy) {
 	dependsOn fatJar
-	from file("$buildDir/libs/$project.name-all.jar")
+	from file("$buildDir/libs/$project.name-${project.version}.jar")
 	into file("$System.env.UPPAAL_ROOT/plugins")
 }
 
@@ -78,4 +79,7 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+githubPublish {
+	from "build/libs/$project.name-${project.version}.jar"
 }
