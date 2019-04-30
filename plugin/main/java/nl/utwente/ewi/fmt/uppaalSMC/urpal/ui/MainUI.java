@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,8 @@ import javax.swing.JTextField;
 import com.uppaal.engine.Problem;
 import com.uppaal.model.system.symbolic.SymbolicTrace;
 import kotlin.Unit;
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.ProblemWrapper;
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -60,10 +63,10 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         return tracer;
     }
     private static Repository<SymbolicTrace> tracer;
-    public static Repository<Problem> getProblemr() {
+    public static Repository<ArrayList<Problem>> getProblemr() {
         return problemr;
     }
-    private static Repository<Problem> problemr;
+    private static Repository<ArrayList<Problem>> problemr;
     public static Repository<UppaalSystem> getSystemr() {
         return systemr;
     }
@@ -115,7 +118,8 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             checkBox.addItemListener(a -> {
                 enabled = a.getStateChange() == ItemEvent.SELECTED;
                 if (enabled) {
-                    doCheck(null, null, null);
+                    Thread.yield();
+                    //doCheck(null, null, null);
                 } else {
                     if (component != null)
                         remove(component);
@@ -265,6 +269,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                 e.printStackTrace();
                 return;
             }
+            problemr.get().removeIf((it) -> it instanceof ProblemWrapper);
             new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys))).start();
         }
     }

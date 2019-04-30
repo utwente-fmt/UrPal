@@ -1,7 +1,6 @@
 package nl.utwente.ewi.fmt.uppaalSMC.urpal.properties
 
 import java.io.IOException
-import java.util.ArrayList
 
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.QueryFeedback
@@ -10,13 +9,11 @@ import com.uppaal.model.core2.Document
 import com.uppaal.model.core2.Query
 import com.uppaal.model.system.UppaalSystem
 import com.uppaal.model.system.concrete.ConcreteTrace
-import com.uppaal.model.system.concrete.ConcreteTransitionRecord
 import com.uppaal.model.system.symbolic.SymbolicState
 import com.uppaal.model.system.symbolic.SymbolicTrace
-import com.uppaal.model.system.symbolic.SymbolicTransition
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
 abstract class AbstractProperty {
 
@@ -27,8 +24,7 @@ abstract class AbstractProperty {
                 TemplateLocationReachabilityMeta(),
                 SystemEdgeReachabilityMeta(),
                 TemplateEdgeReachabilityMeta(),
-                InvariantViolationProperty(), UnusedVariablesProperty(),
-                OverlappingElements())
+                InvariantViolationProperty(), UnusedVariablesProperty())
         internal const val DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         internal const val DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         var STATE_SPACE_SIZE = 0

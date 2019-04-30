@@ -43,7 +43,7 @@ import com.uppaal.model.system.symbolic.SymbolicTransition
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.UppaalUtil
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
 @SanityCheck(name = "Invariant Violation")
 class InvariantViolationProperty : AbstractProperty() {

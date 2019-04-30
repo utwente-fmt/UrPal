@@ -1,4 +1,4 @@
-package nl.utwente.ewi.fmt.uppaalSMC.urpal.ui
+package nl.utwente.ewi.fmt.uppaalSMC.urpal.util
 
 import java.awt.Container
 import java.io.File
@@ -7,10 +7,7 @@ import java.net.URISyntaxException
 import java.util.ArrayList
 
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.muml.uppaal.declarations.ChannelVariableDeclaration
-import org.muml.uppaal.declarations.DataVariablePrefix
-import org.muml.uppaal.declarations.DeclarationsFactory
-import org.muml.uppaal.declarations.Variable
+import org.muml.uppaal.declarations.Parameter
 import org.muml.uppaal.expressions.CompareExpression
 import org.muml.uppaal.expressions.CompareOperator
 import org.muml.uppaal.expressions.Expression
@@ -31,11 +28,9 @@ import com.uppaal.engine.Engine
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.EngineStub
 import com.uppaal.engine.Problem
+import com.uppaal.gui.Main
 import com.uppaal.gui.SystemInspector
-import com.uppaal.model.core2.AbstractTemplate
-import com.uppaal.model.core2.Document
-import com.uppaal.model.core2.Edge
-import com.uppaal.model.core2.Node
+import com.uppaal.model.core2.*
 import com.uppaal.model.system.SystemEdgeSelect
 import com.uppaal.model.system.SystemLocation
 import com.uppaal.model.system.UppaalSystem
@@ -46,17 +41,20 @@ import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
+import on.j
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.nodemodel.INode
+import org.eclipse.xtext.nodemodel.impl.CompositeNode
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.eclipse.xtext.util.LineAndColumn
+import org.muml.uppaal.declarations.*
+import javax.swing.SwingUtilities
 
 object UppaalUtil {
     var engine: Engine = connectToEngine()
 
-    fun Document.getTemplatesSequence(): Sequence<AbstractTemplate> {
-        var current = templates
-        return generateSequence {
-            val result = current
-            current = current?.next as? AbstractTemplate
-            result
-        }
+    fun Document.getTemplatesSequence() = generateSequence(templates) {
+        it.next as? AbstractTemplate
     }
 
     fun AbstractTemplate.getLocations(): Sequence<com.uppaal.model.core2.Location> {
@@ -120,17 +118,8 @@ object UppaalUtil {
 
     @Throws(EngineException::class, IOException::class, URISyntaxException::class)
     private fun connectToEngine(): Engine {
-
-        val os = System.getProperty("os.name")
-        var path = File(Repository::class.java.protectionDomain.codeSource.location.toURI())
-                .parentFile.path
-        path += if ("Linux" == os) {
-            "/bin-Linux/server"
-        } else {
-            "\\bin-Windows\\server.exe"
-        }
         val engine = Engine()
-        engine.setServerPath(path)
+        engine.setServerPath(Main.enginePath + Main.engineName)
         engine.setServerHost("localhost")
         engine.setConnectionMode(EngineStub.BOTH)
         engine.connect()
@@ -223,7 +212,7 @@ object UppaalUtil {
     fun addCounterVariable(nsta: NSTA): Variable? {
         if (AbstractProperty.STATE_SPACE_SIZE <= 0) return null
         val counter = DeclarationsFactory.eINSTANCE.createDataVariableDeclaration()
-        val counterVar = UppaalUtil.createVariable("_counter")
+        val counterVar = createVariable("_counter")
         val range = TypesFactory.eINSTANCE.createRangeTypeSpecification()
         val bounds = TypesFactory.eINSTANCE.createIntegerBounds()
         bounds.lowerBound = createLiteral("0")
@@ -241,12 +230,12 @@ object UppaalUtil {
         if (counterVar == null) return
         if (edge.synchronization != null && edge.synchronization.kind == SynchronizationKind.RECEIVE) return
         val incr = ExpressionsFactory.eINSTANCE.createPostIncrementDecrementExpression()
-        incr.expression = UppaalUtil.createIdentifier(counterVar)
+        incr.expression = createIdentifier(counterVar)
         incr.operator = IncrementDecrementOperator.INCREMENT
         edge.update.add(incr)
         val compare = ExpressionsFactory.eINSTANCE.createCompareExpression()
-        compare.firstExpr = UppaalUtil.createIdentifier(counterVar)
-        compare.secondExpr = UppaalUtil.createLiteral("" + AbstractProperty.STATE_SPACE_SIZE)
+        compare.firstExpr = createIdentifier(counterVar)
+        compare.secondExpr = createLiteral("" + AbstractProperty.STATE_SPACE_SIZE)
         compare.operator = CompareOperator.LESS
         if (edge.guard == null) {
             edge.guard = compare
@@ -273,7 +262,7 @@ object UppaalUtil {
 
     fun createChannelDeclaration(nsta: NSTA, string: String): ChannelVariableDeclaration {
         val cvd = DeclarationsFactory.eINSTANCE.createChannelVariableDeclaration()
-        cvd.variable.add(UppaalUtil.createVariable(string))
+        cvd.variable.add(createVariable(string))
         val tr = TypesFactory.eINSTANCE.createTypeReference()
         tr.referredType = nsta.chan
         cvd.typeDefinition = tr
@@ -307,6 +296,7 @@ object UppaalUtil {
         return invariant
 
     }
+
     fun transformTrace(ts: SymbolicTrace, origSys: UppaalSystem): SymbolicTrace {
         var prev: SymbolicState? = null
         val result = SymbolicTrace()
@@ -339,5 +329,113 @@ object UppaalUtil {
             prev = origTarget
         }
         return result
+    }
+
+    private val classToBeginString = mapOf(GlobalDeclarations::class to "<declaration>",
+            LocalDeclarations::class to "<declaration>",
+            SystemDeclarations::class to "<system>",
+            Parameter::class to "<parameter>")
+
+    fun buildProblem(obj: EObject, document: Document, description: String): Problem {
+        val (el, lineInfo) = ecoreToUppaal(obj, document)
+        var xPath = el.xPath
+        if (xPath.endsWith("!")) xPath = xPath.dropLast(1)
+        return ProblemWrapper(
+                "error",
+                xPath,
+                lineInfo?.get(0) ?: 0,
+                lineInfo?.get(1) ?: 0,
+                lineInfo?.get(2) ?: 0,
+                lineInfo?.get(3) ?: 0,
+                description)
+    }
+
+    fun ecoreToUppaal(obj: EObject, doc: Document): Pair<Element, Array<Int>?> {
+        var lineInfo: Array<Int>? = null
+        var startTag: String? = null
+        val ancestry = generateSequence(obj) { it.eContainer() }
+        var container = obj
+        classToBeginString.keys.forEach { k ->
+            ancestry.any {
+                val result = k.isInstance(it)
+                if (result) {
+                    startTag = classToBeginString[k]
+                    container = it
+                    return@forEach
+                }
+                result
+            }
+        }
+        if (startTag != null) {
+            val node = NodeModelUtils.getNode(obj)
+            val containerNode = NodeModelUtils.getNode(container) as CompositeNode
+            val startTagNode = weirdReverseIterator(node).first { it.text == startTag }
+
+            val containerNodeBeginOffset = containerNode.totalOffset
+            val blockBeginOffset = startTagNode.endOffset - containerNodeBeginOffset
+            val varEndOffset = node.endOffset - containerNodeBeginOffset
+
+            val subString = containerNode.text.subSequence(blockBeginOffset, varEndOffset)
+            var line = 1
+            var column = 1
+            var offsetToCheck = node.offset - startTagNode.endOffset
+            var beginLineAndColumn: LineAndColumn? = null
+            run loop@{
+                subString.forEachIndexed { i, it ->
+                    if (i == offsetToCheck) {
+                        if (beginLineAndColumn != null) {
+                            return@loop
+                        } else {
+                            beginLineAndColumn = LineAndColumn.from(line, column)
+                            offsetToCheck = node.endOffset - startTagNode.endOffset
+                        }
+                    }
+                    if (it == '\n') {
+                        line++
+                        column = 1
+                    } else {
+                        column++
+                    }
+                }
+            }
+            lineInfo = arrayOf(beginLineAndColumn!!.line, beginLineAndColumn!!.column, line, column)
+        }
+
+        return Pair(ecoreXmlToUppaalXml(container, doc), lineInfo)
+    }
+
+    private fun ecoreXmlToUppaalXml(obj: EObject, doc: Document) = when (obj) {
+        is Location -> {
+            val ecoreTemplate = obj.parentTemplate
+
+            val uppaalTemplate = doc.getTemplatesSequence()
+                    .elementAt((ecoreTemplate.eContainer() as NSTA).template.indexOf(ecoreTemplate))
+            uppaalTemplate.getLocations().elementAt(ecoreTemplate.location.indexOf(obj))
+        }
+        is GlobalDeclarations -> {
+            doc.getProperty("declaration")
+        }
+        is SystemDeclarations -> {
+            doc.getProperty("system")
+        }
+        is Parameter -> {
+            val ecoreTemplate = obj.eContainer() as Template
+            doc.getTemplatesSequence()
+                    .elementAt((ecoreTemplate.eContainer() as NSTA).template.indexOf(ecoreTemplate))
+                    .getProperty("parameter")
+        }
+        else -> TODO(obj.toString())
+    }
+
+    private fun weirdReverseIterator(nodeF: INode) = sequence<INode> {
+        var node: INode? = nodeF
+        while (node != null) {
+            yield(node)
+            if (node.hasPreviousSibling()) {
+                node = node.previousSibling
+            } else {
+                node = node.parent
+            }
+        }
     }
 }
