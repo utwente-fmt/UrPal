@@ -80,7 +80,10 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
-
+release {
+	failOnCommitNeeded = false
+	buildTasks = ['fatJar']
+}
 updateVersion.dependsOn ('githubPublish')
 githubPublish {
 	from "build/libs/$project.name-${project.version}.jar"
