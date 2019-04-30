@@ -40,7 +40,7 @@ class DeadlockProperty : AbstractProperty() {
             "A[] (deadlock imply ${locs.joinToString(" or ")})"
         }
         UppaalUtil.reconnect()
-        AbstractProperty.engineQuery(sys, query, "trace 1") { qr, t ->
+        engineQuery(sys, query, "trace 1") { qr, t ->
             cbs.forEach { it() }
             cb(object : SanityCheckResult() {
 

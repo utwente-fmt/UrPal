@@ -2,6 +2,7 @@ package nl.utwente.ewi.fmt.uppaalSMC.urpal.properties
 
 import com.uppaal.model.core2.Document
 import com.uppaal.model.system.UppaalSystem
+import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 

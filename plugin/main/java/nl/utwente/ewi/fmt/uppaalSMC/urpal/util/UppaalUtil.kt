@@ -28,6 +28,7 @@ import com.uppaal.engine.Engine
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.EngineStub
 import com.uppaal.engine.Problem
+import com.uppaal.gui.Main
 import com.uppaal.gui.SystemInspector
 import com.uppaal.model.core2.*
 import com.uppaal.model.system.SystemEdgeSelect
@@ -40,12 +41,14 @@ import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
+import on.j
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.nodemodel.impl.CompositeNode
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.util.LineAndColumn
 import org.muml.uppaal.declarations.*
+import javax.swing.SwingUtilities
 
 object UppaalUtil {
     var engine: Engine = connectToEngine()
@@ -115,17 +118,8 @@ object UppaalUtil {
 
     @Throws(EngineException::class, IOException::class, URISyntaxException::class)
     private fun connectToEngine(): Engine {
-
-        val os = System.getProperty("os.name")
-        var path = File(Repository::class.java.protectionDomain.codeSource.location.toURI())
-                .parentFile.path
-        path += if ("Linux" == os) {
-            "/bin-Linux/server"
-        } else {
-            "\\bin-Windows\\server.exe"
-        }
         val engine = Engine()
-        engine.setServerPath(path)
+        engine.setServerPath(Main.enginePath + Main.engineName)
         engine.setServerHost("localhost")
         engine.setConnectionMode(EngineStub.BOTH)
         engine.connect()

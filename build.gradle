@@ -3,6 +3,7 @@ plugins {
 	id 'java'
     id 'eclipse'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+	id 'net.researchgate.release' version '2.6.0'
 }
 
 dependencies {
