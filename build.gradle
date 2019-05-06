@@ -88,7 +88,9 @@ release {
 }
 updateVersion.dependsOn githubPublish
 githubPublish {
-	from "build/libs/$project.name-${project.version}.jar"
+	from {
+		"build/libs/$project.name-${project.version}.jar"
+	}
 	tagName {
 		project.version
 	}
