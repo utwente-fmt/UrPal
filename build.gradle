@@ -4,7 +4,7 @@ plugins {
     id 'eclipse'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
 	id 'net.researchgate.release' version '2.6.0'
-	id 'net.wooga.github' version '1.3.0'
+	id 'net.wooga.github' version '2.0.0-rc.2'
 }
 
 dependencies {
@@ -36,7 +36,6 @@ sourceSets {
 		}
 	}
 }
-
 
 task fatJar(type: Jar)  {
 	
@@ -80,11 +79,21 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+def deployToken = new File('.gittoken').getText().substring(0,40)
+
 release {
 	failOnCommitNeeded = false
 	buildTasks = ['fatJar']
 }
-updateVersion.dependsOn ('githubPublish')
+afterReleaseBuild.dependsOn githubPublish
 githubPublish {
 	from "build/libs/$project.name-${project.version}.jar"
+	tagName {
+		project.version
+	}
+}
+github {
+	token "$deployToken"
+	repositoryName "ramononis/UrPal"
 }
