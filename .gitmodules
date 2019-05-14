@@ -1,3 +1,3 @@
-[submodule "parser"]
+[submodule "parser-old"]
 	path = parser-old
 	url = git@github.com:ramononis/uppaal-ecore-parser.git
