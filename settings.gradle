@@ -12,6 +12,6 @@ include ':parser'
 project(':parser').projectDir = new File('./parser/nl.utwente.ewi.fmt.uppaalsmc.parser')
 
 include ':plugin'
-project(':plugin').projectDir = new File('./plugin')
+project(':plugin').projectDir = new File('./plugin-old')
 
 rootProject.name = 'UrPal'
