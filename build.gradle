@@ -81,7 +81,7 @@ compileTestKotlin {
     }
 }
 def tokenFile = new File('.gittoken')
-def deployToken = tokenFile.exists() && tokenFile.getText().substring(0,40)
+def deployToken = tokenFile.exists() ? tokenFile.getText().substring(0,40) : ""
 
 release {
 	failOnCommitNeeded = false
