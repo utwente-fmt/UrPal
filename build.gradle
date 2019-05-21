@@ -80,8 +80,8 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
-
-def deployToken = new File('.gittoken')?.getText()?.substring(0,40) ?: ""
+def tokenFile = new File('.gittoken')
+def deployToken = tokenFile.exists() && tokenFile.getText().substring(0,40)
 
 release {
 	failOnCommitNeeded = false
