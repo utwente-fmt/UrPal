@@ -17,11 +17,6 @@ import org.muml.uppaal.expressions.IncrementDecrementOperator
 import org.muml.uppaal.expressions.LiteralExpression
 import org.muml.uppaal.expressions.LogicalExpression
 import org.muml.uppaal.expressions.LogicalOperator
-import org.muml.uppaal.templates.Location
-import org.muml.uppaal.templates.Synchronization
-import org.muml.uppaal.templates.SynchronizationKind
-import org.muml.uppaal.templates.Template
-import org.muml.uppaal.templates.TemplatesFactory
 import org.muml.uppaal.types.TypesFactory
 
 import com.uppaal.engine.Engine
@@ -31,6 +26,8 @@ import com.uppaal.engine.Problem
 import com.uppaal.gui.Main
 import com.uppaal.gui.SystemInspector
 import com.uppaal.model.core2.*
+import com.uppaal.model.core2.AbstractTemplate
+import com.uppaal.model.core2.Edge
 import com.uppaal.model.system.SystemEdgeSelect
 import com.uppaal.model.system.SystemLocation
 import com.uppaal.model.system.UppaalSystem
@@ -48,6 +45,9 @@ import org.eclipse.xtext.nodemodel.impl.CompositeNode
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.util.LineAndColumn
 import org.muml.uppaal.declarations.*
+import org.muml.uppaal.templates.*
+import org.muml.uppaal.templates.Location
+import org.muml.uppaal.templates.Template
 import javax.swing.SwingUtilities
 
 object UppaalUtil {
@@ -350,10 +350,14 @@ object UppaalUtil {
                 description)
     }
 
+    fun getAncestry (obj: EObject) = generateSequence(obj, EObject::eContainer)
+
+    fun isInSelection (obj: EObject) = getAncestry(obj).any { it is Selection}
+
     fun ecoreToUppaal(obj: EObject, doc: Document): Pair<Element, Array<Int>?> {
         var lineInfo: Array<Int>? = null
         var startTag: String? = null
-        val ancestry = generateSequence(obj) { it.eContainer() }
+        val ancestry = getAncestry(obj)
         var container = obj
         classToBeginString.keys.forEach { k ->
             ancestry.any {
