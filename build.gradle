@@ -81,8 +81,6 @@ compileTestKotlin {
     }
 }
 
-def deployToken() { new File('.gittoken').getText().substring(0, 40) }
-
 release {
     failOnCommitNeeded = false
     buildTasks = ['fatJar']
@@ -98,6 +96,8 @@ githubPublish {
 }
 githubPublish.dependsOn preTagCommit
 github {
-    token deployToken()
+    token {
+        new File('.gittoken').getText().substring(0, 40) 
+    }
     repositoryName "ramononis/UrPal"
 }
