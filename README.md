@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/ramononis/UrPal.svg?style=svg)](https://circleci.com/gh/ramononis/UrPal)
 # UrPal
 Applying sanity checks to find commonly made errors in Uppaal models
 ### Setup
