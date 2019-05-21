@@ -62,14 +62,19 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     public static Repository<SymbolicTrace> getTracer() {
         return tracer;
     }
+
     private static Repository<SymbolicTrace> tracer;
+
     public static Repository<ArrayList<Problem>> getProblemr() {
         return problemr;
     }
+
     private static Repository<ArrayList<Problem>> problemr;
+
     public static Repository<UppaalSystem> getSystemr() {
         return systemr;
     }
+
     private static Repository<UppaalSystem> systemr;
     private boolean selected;
     private double zoom;
@@ -258,6 +263,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     public void setActive(boolean selected) {
         this.selected = selected;
     }
+
     private void doCheck() {
         if (panels.stream().anyMatch(p -> p.enabled)) {
             Document d = docr.get();
@@ -269,7 +275,9 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                 e.printStackTrace();
                 return;
             }
-            problemr.get().removeIf((it) -> it instanceof ProblemWrapper);
+            ArrayList<Problem> problems = problemr.get();
+            if (problems != null)
+                problems.removeIf((it) -> it instanceof ProblemWrapper);
             new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys))).start();
         }
     }

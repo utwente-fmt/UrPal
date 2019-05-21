@@ -20,57 +20,59 @@ import javax.swing.JPanel
 
 @SanityCheck(name = "Check for unused elements")
 class UnusedVariablesProperty : AbstractProperty() {
-	override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
-		val unusedVars = mutableListOf<NamedElement>()
-		val problems = ArrayList(MainUI.getProblemr().get())
-		nsta.eAllContents().forEachRemaining {
-			if (it is NamedElement &&
-					!(it is PredefinedType || it is DoubleType)) {
-				if (EcoreUtil.UsageCrossReferencer.find(it, nsta).isEmpty()) {
-					problems.add(UppaalUtil.buildProblem(it, doc, "unused variable"))
-					unusedVars.add(it)
-				}
-			}
-		}
-		if (unusedVars.isNotEmpty()) MainUI.getProblemr().set(problems)
-		val qualifiedNames = unusedVars.map  {
-			val sb = StringBuilder(it.name.replace("nta.", "") + "(" + it.eContainer().javaClass.simpleName
-					.replace("Declaration", "")
-					.replace("Impl", "") + ")")
-			var obj: EObject? = it
-			generateSequence { obj = obj?.eContainer(); obj }
-					.filterIsInstance<NamedElement>().forEach { c ->
-				sb.insert(0, c.name + ".")
-			}
-			sb.toString()
-		}
-		cb(object : SanityCheckResult() {
-			override fun write(out: PrintStream, err: PrintStream) {
-				if (qualifiedNames.isEmpty()) {
-					out.println("No unused variables found")
-				} else {
-					err.println("Unused variables found: ")
-					qualifiedNames.forEach(err::println)
-				}
-			}
+    override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
+        val unusedVars = mutableListOf<NamedElement>()
+        val problems = ArrayList(MainUI.getProblemr()?.get() ?: listOf())
+        nsta.eAllContents().forEachRemaining {
+            if (it is NamedElement &&
+                    !(it is PredefinedType || it is DoubleType)) {
+                if (EcoreUtil.UsageCrossReferencer.find(it, nsta).isEmpty()) {
+                    if (!UppaalUtil.isInSelection(it)) {
+                        problems.add(UppaalUtil.buildProblem(it, doc, "unused variable"))
+                        unusedVars.add(it)
+                    }
+                }
+            }
+        }
+        if (unusedVars.isNotEmpty()) MainUI.getProblemr().set(problems)
+        val qualifiedNames = unusedVars.map {
+            val sb = StringBuilder(it.name.replace("nta.", "") + "(" + it.eContainer().javaClass.simpleName
+                    .replace("Declaration", "")
+                    .replace("Impl", "") + ")")
+            var obj: EObject? = it
+            generateSequence { obj = obj?.eContainer(); obj }
+                    .filterIsInstance<NamedElement>().forEach { c ->
+                        sb.insert(0, c.name + ".")
+                    }
+            sb.toString()
+        }
+        cb(object : SanityCheckResult() {
+            override fun write(out: PrintStream, err: PrintStream) {
+                if (qualifiedNames.isEmpty()) {
+                    out.println("No unused variables found")
+                } else {
+                    err.println("Unused variables found: ")
+                    qualifiedNames.forEach(err::println)
+                }
+            }
 
-			override fun toPanel(): JPanel {
-				val p = JPanel()
-				p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
-				if (qualifiedNames.isEmpty()) {
-					p.add(JLabel("All variables used!"))
-				} else {
-					val label = JLabel("Unused declarations found:")
-					label.foreground = Color.RED
-					p.add(label)
-					qualifiedNames.forEach {
-						val locLabel = JLabel(it)
-						locLabel.foreground = Color.RED
-						p.add(locLabel)
-					}
-				}
-				return p
-			}
-		})
-	}
+            override fun toPanel(): JPanel {
+                val p = JPanel()
+                p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
+                if (qualifiedNames.isEmpty()) {
+                    p.add(JLabel("All variables used!"))
+                } else {
+                    val label = JLabel("Unused declarations found:")
+                    label.foreground = Color.RED
+                    p.add(label)
+                    qualifiedNames.forEach {
+                        val locLabel = JLabel(it)
+                        locLabel.foreground = Color.RED
+                        p.add(locLabel)
+                    }
+                }
+                return p
+            }
+        })
+    }
 }

@@ -56,6 +56,7 @@ task deployLocal(type: Copy) {
 	dependsOn fatJar
 	from file("$buildDir/libs/$project.name-${project.version}.jar")
 	into file("$System.env.UPPAAL_ROOT/plugins")
+    rename { "UrPal.jar" }
 }
 
 def file() {
