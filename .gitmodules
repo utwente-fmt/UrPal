@@ -1,3 +1,7 @@
 [submodule "parser-old"]
 	path = parser-old
 	url = git@github.com:ramononis/uppaal-ecore-parser.git
+[submodule "parser"]
+	path = parser
+	url = git@github.com:utwente-fmt/uppaal
+	branch = parser-UrPal
