@@ -155,16 +155,9 @@ object UppaalUtil {
         val problems = ArrayList<Problem>()
         val sys = engine.getSystem(doc, problems)
         if (!problems.isEmpty()) {
-            var fatal = false
             println("There are problems with the document:")
-            for (p in problems) {
+            problems.forEach { p ->
                 println(p.toString())
-                if ("warning" != p.type) { // ignore warnings
-                    fatal = true
-                }
-            }
-            if (fatal) {
-                System.exit(1)
             }
         }
         return sys
