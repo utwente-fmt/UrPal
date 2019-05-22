@@ -13,7 +13,8 @@ Set an environment variable ```UPPAAL_ROOT``` to the root folder of the UPPAAL d
 Plugins should be placed in the plugins directory inside Uppaal. Make sure that ```$UPPAAL_ROOT/plugins/``` exists, make it if it doesn't exist.
 
 ### Available commands
-> Windows should ```gradlew.bat``` instead of ```./gradlew```
+> Windows should ```gradlew.bat``` instead of ```./gradlew```  
+> **Use Java 8 (due to Xtend compatability issues with new Java versions)**
 ##### Build
 Run ```./gradlew build``` to build the plugin. The plugin can be found ```build/libs/```
 ##### Build and deploy local
