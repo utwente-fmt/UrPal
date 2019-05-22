@@ -80,6 +80,11 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+compileJava {
+	targetCompatibility = 1.8
+}
+
 def tokenFile = new File('.gittoken')
 def deployToken = tokenFile.exists() ? tokenFile.getText().substring(0,40) : ""
 
@@ -87,7 +92,7 @@ release {
 	failOnCommitNeeded = false
 	buildTasks = ['fatJar']
 }
-//updateVersion.dependsOn githubPublish
+updateVersion.dependsOn githubPublish
 githubPublish {
 	from {
 		"build/libs/$project.name-${project.version}.jar"
@@ -96,7 +101,7 @@ githubPublish {
 		project.version
 	}
 }
-//githubPublish.dependsOn preTagCommit
+githubPublish.dependsOn preTagCommit
 github {
 	token deployToken
 	repositoryName "ramononis/UrPal"
