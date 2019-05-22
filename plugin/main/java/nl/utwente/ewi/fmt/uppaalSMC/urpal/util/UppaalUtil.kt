@@ -368,11 +368,10 @@ object UppaalUtil {
             val containerNode = NodeModelUtils.getNode(container) as CompositeNode
             val startTagNode = weirdReverseIterator(node).first { it.text == startTag }
 
-            val containerNodeBeginOffset = containerNode.totalOffset
-            val blockBeginOffset = startTagNode.endOffset - containerNodeBeginOffset
-            val varEndOffset = node.endOffset - containerNodeBeginOffset
+            val blockBeginOffset = startTagNode.endOffset
+            val varEndOffset = node.endOffset
 
-            val subString = containerNode.text.subSequence(blockBeginOffset, varEndOffset)
+            val subString = containerNode.rootNode.text.subSequence(blockBeginOffset, varEndOffset)
             var line = 1
             var column = 1
             var offsetToCheck = node.offset - startTagNode.endOffset
