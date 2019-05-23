@@ -77,11 +77,6 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
 
     private static Repository<UppaalSystem> systemr;
 
-    public static Repository<Sanity> get() {
-        return systemr;
-    }
-
-    private static Repository<UppaalSystem> systemr;
     private boolean selected;
     private double zoom;
 
