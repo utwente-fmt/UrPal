@@ -141,9 +141,12 @@ class InvariantViolationProperty : AbstractProperty() {
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
                     .parse(proto)
             val tSys = UppaalUtil.compile(tDoc)
-            AbstractProperty.engineQuery(tSys, "A[] (not __isViolated__)", OPTIONS) { qr, ts ->
+            engineQuery(tSys, "A[] (not __isViolated__)", OPTIONS) { qr, ts ->
                 val tsFinal = if (ts.isEmpty) ts else transformTrace(ts, sys)
                 cb(object : SanityCheckResult() {
+                    override fun getOutcome() = if (qr.status == QueryResult.MAYBE_OK || qr.status == QueryResult.OK)
+                        Outcome.SATISFIED else Outcome.VIOLATED
+
                     override fun write(out: PrintStream, err: PrintStream) {
                         if (qr.status == QueryResult.MAYBE_OK || qr.status == QueryResult.OK) {
                             out.println("No invariant violations found!")

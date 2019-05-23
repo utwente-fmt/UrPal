@@ -17,6 +17,7 @@ import com.uppaal.model.system.UppaalSystem
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
+import java.lang.Thread.sleep
 
 @SanityCheck(name = "Deadlocks")
 class DeadlockProperty : AbstractProperty() {
@@ -43,6 +44,7 @@ class DeadlockProperty : AbstractProperty() {
         engineQuery(sys, query, "trace 1") { qr, t ->
             cbs.forEach { it() }
             cb(object : SanityCheckResult() {
+                override fun getOutcome() = if (qr.status == QueryResult.OK) Outcome.SATISFIED else Outcome.VIOLATED
 
                 override fun write(out: PrintStream, err: PrintStream) {
                     if (qr.status == QueryResult.OK) {

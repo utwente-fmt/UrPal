@@ -137,6 +137,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
                     sys.processes.flatMap { it.locations.map { l -> l.location } }.distinct()
                                 .forEach { l -> l.setProperty("color", null) }
                     cb(object : SanityCheckResult() {
+                        override fun getOutcome() = Outcome.SATISFIED
                         override fun write(out: PrintStream, err: PrintStream) {
                             out.println("All locations reachable!")
                         }
@@ -150,7 +151,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
                     })
                 } else {
                     try {
-                        AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
+                        engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
@@ -187,6 +188,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
                                 else if (reachable.contains(l)) Color.YELLOW else Color.RED)
                             }
                             cb(object : SanityCheckResult() {
+                                override fun getOutcome() = Outcome.VIOLATED
 
                                 override fun write(out: PrintStream, err: PrintStream) {
                                     err.println("Unreachable locations found:")

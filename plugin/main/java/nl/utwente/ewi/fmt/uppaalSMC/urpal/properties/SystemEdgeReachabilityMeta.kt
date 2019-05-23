@@ -143,6 +143,8 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                             .forEach { l -> l.setProperty("color", null) }
 
                     cb(object : SanityCheckResult() {
+                        override fun getOutcome() = Outcome.SATISFIED
+
                         override fun write(out: PrintStream, err: PrintStream) {
                             out.println("All edges reachable!")
                         }
@@ -159,7 +161,7 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                     doOk()
                 } else {
                     try {
-                        AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
+                        engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
@@ -196,6 +198,8 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                                     } else null)
                                 }
                                 cb(object : SanityCheckResult() {
+
+                                    override fun getOutcome() = Outcome.VIOLATED
 
                                     override fun write(out: PrintStream, err: PrintStream) {
                                         err.println("Unreachable edges found:")

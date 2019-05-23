@@ -76,6 +76,12 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private static Repository<UppaalSystem> systemr;
+
+    public static Repository<Sanity> get() {
+        return systemr;
+    }
+
+    private static Repository<UppaalSystem> systemr;
     private boolean selected;
     private double zoom;
 
@@ -135,7 +141,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             add(checkBox);
         }
 
-        void doCheck(NSTA nsta, Document doc, UppaalSystem sys) {
+        void check(NSTA nsta, Document doc, UppaalSystem sys) {
             if (nsta == null) {
                 nsta = load(doc = docr.get());
                 try {
@@ -145,7 +151,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     return;
                 }
             }
-            property.doCheck(nsta, doc, sys, pr -> {
+            property.check(nsta, doc, sys, pr -> {
                 if (pr == null) {
                     docr.fire(ChangeType.valueOf("UPDATED"));
                     return Unit.INSTANCE;
@@ -279,7 +285,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             ArrayList<Problem> problems = problemr.get();
             if (problems != null)
                 problems.removeIf((it) -> it instanceof ProblemWrapper);
-            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys))).start();
+            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.check(nsta, d, sys))).start();
         }
     }
 
