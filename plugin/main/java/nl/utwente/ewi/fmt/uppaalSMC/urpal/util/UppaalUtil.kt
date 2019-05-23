@@ -420,6 +420,12 @@ object UppaalUtil {
                     .elementAt((ecoreTemplate.eContainer() as NSTA).template.indexOf(ecoreTemplate))
                     .getProperty("parameter")
         }
+        is LocalDeclarations -> {
+            val ecoreTemplate = obj.eContainer() as Template
+            doc.getTemplatesSequence()
+                    .elementAt((ecoreTemplate.eContainer() as NSTA).template.indexOf(ecoreTemplate))
+                    .getProperty("declaration")
+        }
         else -> TODO(obj.toString())
     }
 

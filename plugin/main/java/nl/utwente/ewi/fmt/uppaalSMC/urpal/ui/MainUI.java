@@ -120,6 +120,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             setBorder(BorderFactory.createTitledBorder(property.getClass().getAnnotation(SanityCheck.class).name()));
 
             JCheckBox checkBox = new JCheckBox(property.getClass().getAnnotation(SanityCheck.class).name());
+            checkBox.setSelected(enabled = true);
             checkBox.addItemListener(a -> {
                 enabled = a.getStateChange() == ItemEvent.SELECTED;
                 if (enabled) {

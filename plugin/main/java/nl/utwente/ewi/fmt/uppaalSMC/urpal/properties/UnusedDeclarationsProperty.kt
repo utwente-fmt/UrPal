@@ -18,8 +18,8 @@ import javax.swing.BoxLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-@SanityCheck(name = "Check for unused elements")
-class UnusedVariablesProperty : AbstractProperty() {
+@SanityCheck(name = "Check for unused declarations")
+class UnusedDeclarationsProperty : AbstractProperty() {
     override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
         val unusedVars = mutableListOf<NamedElement>()
         val problems = ArrayList(MainUI.getProblemr()?.get() ?: listOf())
@@ -28,7 +28,7 @@ class UnusedVariablesProperty : AbstractProperty() {
                     !(it is PredefinedType || it is DoubleType)) {
                 if (EcoreUtil.UsageCrossReferencer.find(it, nsta).isEmpty()) {
                     if (!UppaalUtil.isInSelection(it)) {
-                        problems.add(UppaalUtil.buildProblem(it, doc, "unused variable"))
+                        problems.add(UppaalUtil.buildProblem(it, doc, "Unused declarations"))
                         unusedVars.add(it)
                     }
                 }
@@ -49,9 +49,9 @@ class UnusedVariablesProperty : AbstractProperty() {
         cb(object : SanityCheckResult() {
             override fun write(out: PrintStream, err: PrintStream) {
                 if (qualifiedNames.isEmpty()) {
-                    out.println("No unused variables found")
+                    out.println("No unused declarations found")
                 } else {
-                    err.println("Unused variables found: ")
+                    err.println("Unused declarations found: ")
                     qualifiedNames.forEach(err::println)
                 }
             }
@@ -60,7 +60,7 @@ class UnusedVariablesProperty : AbstractProperty() {
                 val p = JPanel()
                 p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
                 if (qualifiedNames.isEmpty()) {
-                    p.add(JLabel("All variables used!"))
+                    p.add(JLabel("All declarations used!"))
                 } else {
                     val label = JLabel("Unused declarations found:")
                     label.foreground = Color.RED
