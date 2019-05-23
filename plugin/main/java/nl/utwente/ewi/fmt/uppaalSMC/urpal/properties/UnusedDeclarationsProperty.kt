@@ -9,8 +9,6 @@ import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.muml.uppaal.core.NamedElement
-import org.muml.uppaal.declarations.Variable
-import org.muml.uppaal.declarations.system.TemplateDeclaration
 import org.muml.uppaal.types.PredefinedType
 import java.awt.Color
 import java.io.PrintStream
@@ -47,6 +45,8 @@ class UnusedDeclarationsProperty : AbstractProperty() {
             sb.toString()
         }
         cb(object : SanityCheckResult() {
+            override fun getOutcome()= if (qualifiedNames.isEmpty()) Outcome.SATISFIED else Outcome.VIOLATED
+
             override fun write(out: PrintStream, err: PrintStream) {
                 if (qualifiedNames.isEmpty()) {
                     out.println("No unused declarations found")

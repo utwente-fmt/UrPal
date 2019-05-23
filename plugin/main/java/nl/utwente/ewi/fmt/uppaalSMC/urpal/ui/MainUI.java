@@ -28,8 +28,11 @@ import javax.swing.JTextField;
 
 import com.uppaal.engine.Problem;
 import com.uppaal.model.system.symbolic.SymbolicTrace;
+import com.uppaal.plugin.*;
 import kotlin.Unit;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.ProblemWrapper;
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLog;
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLogRepository;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.eclipse.emf.common.util.URI;
@@ -42,10 +45,6 @@ import com.uppaal.engine.EngineException;
 import com.uppaal.model.core2.Document;
 import com.uppaal.model.io2.XMLWriter;
 import com.uppaal.model.system.UppaalSystem;
-import com.uppaal.plugin.Plugin;
-import com.uppaal.plugin.PluginWorkspace;
-import com.uppaal.plugin.Registry;
-import com.uppaal.plugin.Repository;
 import com.uppaal.plugin.Repository.ChangeType;
 
 import nl.utwente.ewi.fmt.uppaalSMC.parser.UppaalSMCStandaloneSetup;
@@ -76,6 +75,13 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private static Repository<UppaalSystem> systemr;
+
+    private static SanityLogRepository slr;
+
+    public static SanityLogRepository getSlr() {
+        return slr;
+    }
+
     private boolean selected;
     private double zoom;
 
@@ -135,7 +141,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             add(checkBox);
         }
 
-        void doCheck(NSTA nsta, Document doc, UppaalSystem sys) {
+        void check(NSTA nsta, Document doc, UppaalSystem sys) {
             if (nsta == null) {
                 nsta = load(doc = docr.get());
                 try {
@@ -145,11 +151,12 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     return;
                 }
             }
-            property.doCheck(nsta, doc, sys, pr -> {
+            property.check(nsta, doc, sys, pr -> {
                 if (pr == null) {
                     docr.fire(ChangeType.valueOf("UPDATED"));
                     return Unit.INSTANCE;
                 }
+                slr.addToLog(pr);
                 if (component != null)
                     remove(component);
                 add(component = pr.toPanel());
@@ -168,6 +175,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         docr = r.getRepository("EditorDocument");
         tracer = r.getRepository("SymbolicTrace");
         problemr = r.getRepository("EditorProblems");
+        r.publishRepository(slr = new SanityLogRepository());
         workspaces[0] = this;
         r.addListener(this);
 
@@ -279,7 +287,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             ArrayList<Problem> problems = problemr.get();
             if (problems != null)
                 problems.removeIf((it) -> it instanceof ProblemWrapper);
-            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.doCheck(nsta, d, sys))).start();
+            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.check(nsta, d, sys))).start();
         }
     }
 

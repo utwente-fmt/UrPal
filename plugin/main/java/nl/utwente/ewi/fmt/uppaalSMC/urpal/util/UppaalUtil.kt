@@ -1,7 +1,5 @@
 package nl.utwente.ewi.fmt.uppaalSMC.urpal.util
 
-import java.awt.Container
-import java.io.File
 import java.io.IOException
 import java.net.URISyntaxException
 import java.util.ArrayList
@@ -23,8 +21,6 @@ import com.uppaal.engine.Engine
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.EngineStub
 import com.uppaal.engine.Problem
-import com.uppaal.gui.Main
-import com.uppaal.gui.SystemInspector
 import com.uppaal.model.core2.*
 import com.uppaal.model.core2.AbstractTemplate
 import com.uppaal.model.core2.Edge
@@ -34,11 +30,9 @@ import com.uppaal.model.system.UppaalSystem
 import com.uppaal.model.system.symbolic.SymbolicState
 import com.uppaal.model.system.symbolic.SymbolicTrace
 import com.uppaal.model.system.symbolic.SymbolicTransition
-import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
-import on.j
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.nodemodel.impl.CompositeNode
@@ -48,7 +42,6 @@ import org.muml.uppaal.declarations.*
 import org.muml.uppaal.templates.*
 import org.muml.uppaal.templates.Location
 import org.muml.uppaal.templates.Template
-import javax.swing.SwingUtilities
 
 object UppaalUtil {
     var engine: Engine = connectToEngine()
@@ -71,17 +64,6 @@ object UppaalUtil {
             }
             null
         }
-    }
-
-    fun getSystemInspector(c: Container): SystemInspector? {
-        var parent: Container? = c.parent
-        while (parent != null) {
-            if (parent is SystemInspector) {
-                return parent
-            }
-            parent = parent.parent
-        }
-        return null
     }
 
     fun getLocations(doc: Document, templateName: String): List<com.uppaal.model.core2.Location> {
@@ -119,7 +101,10 @@ object UppaalUtil {
     @Throws(EngineException::class, IOException::class, URISyntaxException::class)
     private fun connectToEngine(): Engine {
         val engine = Engine()
-        engine.setServerPath(Main.enginePath + Main.engineName)
+        val mainClass = Class.forName("com.uppaal.gui.Main")
+        val enginePath = mainClass.getField("enginePath").get(null)
+        val engineName = mainClass.getField("engineName").get(null)
+        engine.setServerPath("$enginePath$engineName")
         engine.setServerHost("localhost")
         engine.setConnectionMode(EngineStub.BOTH)
         engine.connect()

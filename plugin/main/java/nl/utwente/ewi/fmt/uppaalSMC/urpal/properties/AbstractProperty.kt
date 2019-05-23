@@ -14,12 +14,90 @@ import com.uppaal.model.system.symbolic.SymbolicTrace
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
+import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorService
+import org.eclipse.xtext.tasks.Task
+import java.awt.Color
+import java.io.PrintStream
+import java.lang.RuntimeException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import javax.swing.BoxLayout
+import javax.swing.JLabel
+import javax.swing.JPanel
+
 
 abstract class AbstractProperty {
 
-    abstract fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit)
+    protected abstract fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit)
+
+    fun check(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
+        val executor = Executors.newSingleThreadExecutor()
+        val future = executor.submit {
+            doCheck(nsta, doc, sys) {
+                it.name = this.javaClass.simpleName
+                cb(it)
+            }
+        }
+        try {
+            future.get(15, TimeUnit.SECONDS)
+        } catch (e: TimeoutException) {
+            future.cancel(true);
+            cb(timeoutResult())
+        } catch (e: Exception) {
+            cb(exceptionResult())
+            throw e
+        }
+    }
+
+    fun timeoutResult(): SanityCheckResult {
+        val result = object : SanityCheckResult() {
+
+            override fun write(out: PrintStream, err: PrintStream) {
+                err.println("Timeout for $name")
+            }
+
+            override fun toPanel(): JPanel {
+                val p = JPanel()
+                p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
+                val label = JLabel("Timeout")
+                label.foreground = Color.RED
+                p.add(label)
+                return p
+            }
+
+            override fun getOutcome() = Outcome.TIMEOUT
+
+        }
+        result.name = this.javaClass.simpleName
+        return result
+    }
+    fun exceptionResult(): SanityCheckResult {
+        val result = object : SanityCheckResult() {
+
+            override fun write(out: PrintStream, err: PrintStream) {
+                err.println("Exception for $name")
+            }
+
+            override fun toPanel(): JPanel {
+                val p = JPanel()
+                p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
+                val label = JLabel("Exception")
+                label.foreground = Color.RED
+                p.add(label)
+                return p
+            }
+
+            override fun getOutcome() = Outcome.EXCEPTION
+
+        }
+        result.name = this.javaClass.simpleName
+        return result
+    }
 
     companion object {
+
+
         val properties = arrayOf(DeadlockProperty(), SystemLocationReachabilityMeta(),
 //                TemplateLocationReachabilityMeta(),
                 SystemEdgeReachabilityMeta(),

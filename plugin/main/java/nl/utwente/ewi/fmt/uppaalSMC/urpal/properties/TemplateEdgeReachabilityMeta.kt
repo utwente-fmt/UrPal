@@ -138,12 +138,14 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
                     .parse(proto)
             val tSys = UppaalUtil.compile(tDoc)
 
-            AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
+            engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
 
-            AbstractProperty.engineQuery(tSys, q, OPTIONS) { qr, _ ->
+            engineQuery(tSys, q, OPTIONS) { qr, _ ->
                 if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
                     templateEdges.forEach { it.setProperty("color", null) }
                     cb(object : SanityCheckResult() {
+                        override fun getOutcome() = Outcome.SATISFIED
+
                         override fun write(out: PrintStream, err: PrintStream) {
                             out.println("All edge reachable!")
                         }
@@ -179,6 +181,7 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
                                 }
                             }
                             cb(object : SanityCheckResult() {
+                                override fun getOutcome() = Outcome.VIOLATED
 
                                 override fun write(out: PrintStream, err: PrintStream) {
                                     err.println("Unreachable edges found:")
