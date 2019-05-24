@@ -30,6 +30,9 @@ sourceSets {
 		java {
 			srcDir 'main/java'
 		}
+		resources {
+			srcDir 'main/resources'
+		}
 	}
 }
 compileKotlin {

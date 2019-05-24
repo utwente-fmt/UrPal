@@ -13,21 +13,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.uppaal.engine.Problem;
 import com.uppaal.model.system.symbolic.SymbolicTrace;
 import com.uppaal.plugin.*;
 import kotlin.Unit;
+import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.SanityCheckResult;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.ProblemWrapper;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLog;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLogRepository;
@@ -52,6 +44,30 @@ import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.SanityCheck;
 
 @SuppressWarnings("serial")
 public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyChangeListener {
+    protected static final String SELECT = "com/uppaal/resource/images/selectedQuery.gif";
+    protected static final String OKAY = "com/uppaal/resource/images/queryOkay.gif";
+    protected static final String NOT_OKAY = "com/uppaal/resource/images/queryNotOkay.gif";
+    protected static final String UNKNOWN = "com/uppaal/resource/images/queryUnknown.gif";
+    protected static final String MAYBE_OKAY = "com/uppaal/resource/images/queryMaybeOkay.gif";
+    protected static final String MAYBE_NOT_OKAY = "com/uppaal/resource/images/queryMaybeNotOkay.gif";
+
+    private String getIconByOutcome(SanityCheckResult.Outcome outcome) {
+        switch (outcome) {
+            case TIMEOUT:
+            case CANCELED:
+            case EXCEPTION:
+                return MAYBE_NOT_OKAY;
+            case VIOLATED:
+                return NOT_OKAY;
+            case SATISFIED:
+                return OKAY;
+            default:
+                return UNKNOWN;
+        }
+    }
+    private ImageIcon getIcon(String resource) {
+        return new ImageIcon(getClass().getClassLoader().getResource(resource));
+    }
     private final Set<PropertyPanel> panels = new HashSet<>();
     private ResourceSet rs;
     private Repository<Document> docr;
@@ -105,6 +121,8 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         private final AbstractProperty property;
         private boolean enabled;
         private Component component;
+        private ImageIcon icon;
+        private JCheckBox checkBox;
 
         private void redoStuff() {
             Component c = component;
@@ -120,10 +138,13 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         PropertyPanel(AbstractProperty p) {
             super();
             property = p;
+            icon = getIcon(UNKNOWN);
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             setBorder(BorderFactory.createTitledBorder(property.getClass().getAnnotation(SanityCheck.class).name()));
-
-            JCheckBox checkBox = new JCheckBox(property.getClass().getAnnotation(SanityCheck.class).name());
+//            JPanel panel = new JPanel();
+            checkBox = new JCheckBox(property.getClass().getAnnotation(SanityCheck.class).name());
+            checkBox.setIcon(UIManager.getIcon ("CheckBox.icon"));
+            checkBox.setSelectedIcon(icon);
             checkBox.setSelected(enabled = true);
             checkBox.addItemListener(a -> {
                 enabled = a.getStateChange() == ItemEvent.SELECTED;
@@ -137,9 +158,13 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                 redoStuff();
             });
             add(checkBox);
+//            panel.add(new JLabel(icon));
+//            panel.add(checkBox);
+//            add(panel);
         }
 
         void check(NSTA nsta, Document doc, UppaalSystem sys) {
+            checkBox.setSelectedIcon(getIcon(MAYBE_OKAY));
             if (nsta == null) {
                 nsta = load(doc = docr.get());
                 try {
@@ -154,6 +179,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     docr.fire(ChangeType.valueOf("UPDATED"));
                     return Unit.INSTANCE;
                 }
+                checkBox.setSelectedIcon(getIcon(getIconByOutcome(pr.getOutcome())));
                 slr.addToLog(pr);
                 if (component != null)
                     remove(component);
