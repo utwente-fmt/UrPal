@@ -40,10 +40,15 @@ abstract class AbstractProperty {
             }
         }
         try {
-            future.get(15, TimeUnit.SECONDS)
+            future.get(timeout.toLong(), TimeUnit.SECONDS)
         } catch (e: TimeoutException) {
-            future.cancel(true);
+            future.cancel(true)
+            UppaalUtil.engine.cancel()
             cb(timeoutResult())
+        } catch (e: InterruptedException) {
+            future.cancel(true)
+            UppaalUtil.engine.cancel()
+            cb(cancelResult())
         } catch (e: Exception) {
             cb(exceptionResult())
             throw e
@@ -61,6 +66,28 @@ abstract class AbstractProperty {
                 val p = JPanel()
                 p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
                 val label = JLabel("Timeout")
+                label.foreground = Color.RED
+                p.add(label)
+                return p
+            }
+
+            override fun getOutcome() = Outcome.TIMEOUT
+
+        }
+        result.name = this.javaClass.simpleName
+        return result
+    }
+    fun cancelResult(): SanityCheckResult {
+        val result = object : SanityCheckResult() {
+
+            override fun write(out: PrintStream, err: PrintStream) {
+                err.println("Cancelled $name")
+            }
+
+            override fun toPanel(): JPanel {
+                val p = JPanel()
+                p.layout = BoxLayout(p, BoxLayout.Y_AXIS)
+                val label = JLabel("Cancelled")
                 label.foreground = Color.RED
                 p.add(label)
                 return p
@@ -105,7 +132,8 @@ abstract class AbstractProperty {
                 InvariantViolationProperty(), UnusedDeclarationsProperty())
         internal const val DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         internal const val DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
-        var STATE_SPACE_SIZE = 0
+        var stateSpaceSize = 0
+        var timeout = 15
 
         internal var maxMem: Long = 0
 

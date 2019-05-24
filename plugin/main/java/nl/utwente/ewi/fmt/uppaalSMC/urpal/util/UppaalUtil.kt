@@ -188,13 +188,13 @@ object UppaalUtil {
     }
 
     fun addCounterVariable(nsta: NSTA): Variable? {
-        if (AbstractProperty.STATE_SPACE_SIZE <= 0) return null
+        if (AbstractProperty.stateSpaceSize <= 0) return null
         val counter = DeclarationsFactory.eINSTANCE.createDataVariableDeclaration()
         val counterVar = createVariable("_counter")
         val range = TypesFactory.eINSTANCE.createRangeTypeSpecification()
         val bounds = TypesFactory.eINSTANCE.createIntegerBounds()
         bounds.lowerBound = createLiteral("0")
-        bounds.upperBound = createLiteral("" + AbstractProperty.STATE_SPACE_SIZE * 10)
+        bounds.upperBound = createLiteral("" + AbstractProperty.stateSpaceSize * 10)
         range.bounds = bounds
         counter.typeDefinition = range
         counter.prefix = DataVariablePrefix.META
@@ -204,7 +204,7 @@ object UppaalUtil {
     }
 
     fun addCounterToEdge(edge: org.muml.uppaal.templates.Edge, counterVar: Variable?) {
-        if (AbstractProperty.STATE_SPACE_SIZE <= 0) return
+        if (AbstractProperty.stateSpaceSize <= 0) return
         if (counterVar == null) return
         if (edge.synchronization != null && edge.synchronization.kind == SynchronizationKind.RECEIVE) return
         val incr = ExpressionsFactory.eINSTANCE.createPostIncrementDecrementExpression()
@@ -213,7 +213,7 @@ object UppaalUtil {
         edge.update.add(incr)
         val compare = ExpressionsFactory.eINSTANCE.createCompareExpression()
         compare.firstExpr = createIdentifier(counterVar)
-        compare.secondExpr = createLiteral("" + AbstractProperty.STATE_SPACE_SIZE)
+        compare.secondExpr = createLiteral("" + AbstractProperty.stateSpaceSize)
         compare.operator = CompareOperator.LESS
         if (edge.guard == null) {
             edge.guard = compare

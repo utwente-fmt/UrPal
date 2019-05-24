@@ -10,18 +10,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-import javax.swing.*;
 
 import com.uppaal.engine.Problem;
 import com.uppaal.model.system.symbolic.SymbolicTrace;
-import com.uppaal.plugin.*;
+import com.uppaal.plugin.Plugin;
+import com.uppaal.plugin.PluginWorkspace;
+import com.uppaal.plugin.Registry;
+import com.uppaal.plugin.Repository;
 import kotlin.Unit;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.SanityCheckResult;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.ProblemWrapper;
-import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLog;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.SanityLogRepository;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -41,6 +41,8 @@ import nl.utwente.ewi.fmt.uppaalSMC.parser.UppaalSMCStandaloneSetup;
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty;
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.SanityCheck;
+
+import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyChangeListener {
@@ -68,7 +70,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     private ImageIcon getIcon(String resource) {
         return new ImageIcon(getClass().getClassLoader().getResource(resource));
     }
-    private final Set<PropertyPanel> panels = new HashSet<>();
+    private final List<PropertyPanel> panels = new ArrayList<>();
     private ResourceSet rs;
     private Repository<Document> docr;
 
@@ -96,6 +98,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         return slr;
     }
 
+    private JButton runButton;
     private boolean selected;
     private double zoom;
 
@@ -211,15 +214,27 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         JPanel jp = new JPanel();
         jp.add(new JLabel("States to explore per check (<=0 for unlimited): "));
         JTextField nStates = new JFormattedTextField(NumberFormat.getIntegerInstance());
-        nStates.setText("" + AbstractProperty.Companion.getSTATE_SPACE_SIZE());
+        nStates.setText("" + AbstractProperty.Companion.getStateSpaceSize());
         nStates.setPreferredSize(new Dimension(128, nStates.getPreferredSize().height));
         nStates.addPropertyChangeListener("value", evt -> {
             System.out.println(evt.getNewValue());
-            AbstractProperty.Companion.setSTATE_SPACE_SIZE(Integer.parseInt(evt.getNewValue().toString()));
+            AbstractProperty.Companion.setStateSpaceSize(Integer.parseInt(evt.getNewValue().toString()));
         });
         jp.add(nStates);
         add(jp);
-        JButton runButton = new JButton("Run selected checks");
+
+        jp = new JPanel();
+        jp.add(new JLabel("Timeout (in seconds): "));
+        JTextField timeOut = new JFormattedTextField(NumberFormat.getIntegerInstance());
+        timeOut.setText("" + AbstractProperty.Companion.getTimeout());
+        timeOut.setPreferredSize(new Dimension(128, timeOut.getPreferredSize().height));
+        timeOut.addPropertyChangeListener("value", evt -> {
+            System.out.println(evt.getNewValue());
+            AbstractProperty.Companion.setTimeout(Integer.parseInt(evt.getNewValue().toString()));
+        });
+        jp.add(timeOut);
+        add(jp);
+        runButton = new JButton("Run selected checks");
         runButton.addActionListener(e -> doCheck());
         add(runButton);
         for (AbstractProperty p : AbstractProperty.Companion.getProperties()) {
@@ -296,6 +311,11 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private void doCheck() {
+        if (checkThread != null && checkThread.isAlive()) {
+            checkThread.interrupt();
+            UppaalUtil.INSTANCE.getEngine().cancel();
+            return;
+        }
         if (panels.stream().anyMatch(p -> p.enabled)) {
             Document d = docr.get();
             NSTA nsta = load(d);
@@ -309,9 +329,16 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             ArrayList<Problem> problems = problemr.get();
             if (problems != null)
                 problems.removeIf((it) -> it instanceof ProblemWrapper);
-            new Thread(() -> panels.stream().filter(p -> p.enabled).forEach(p -> p.check(nsta, d, sys))).start();
+            runButton.setText("Cancel current check");
+            checkThread = new Thread(() -> {
+                panels.stream().filter(p -> p.enabled).forEach(p -> p.check(nsta, d, sys));
+                runButton.setText("Run selected checks");
+            });
+            checkThread.start();
         }
     }
+
+    private Thread checkThread;
 
     @Override
     public PluginWorkspace[] getWorkspaces() {
