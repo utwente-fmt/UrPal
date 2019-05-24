@@ -1,6 +1,5 @@
 package nl.utwente.ewi.fmt.uppaalSMC.urpal.properties
 
-import sun.misc.MessageUtils
 import java.io.PrintStream
 
 import javax.swing.JPanel

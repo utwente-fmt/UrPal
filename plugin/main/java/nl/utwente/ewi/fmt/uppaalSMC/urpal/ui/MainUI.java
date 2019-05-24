@@ -1,8 +1,6 @@
 package nl.utwente.ewi.fmt.uppaalSMC.urpal.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.KeyboardFocusManager;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -226,9 +224,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
 
     @Override
     public Component getComponent() {
-        JScrollPane scroll = new JScrollPane(this);
-        scroll.setPreferredSize(new Dimension(790, 470));
-        return scroll;
+        return new JScrollPane(this);
     }
 
     @Override
