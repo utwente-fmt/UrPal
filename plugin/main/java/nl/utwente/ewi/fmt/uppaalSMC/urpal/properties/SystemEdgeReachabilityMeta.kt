@@ -128,7 +128,6 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
             val bw = BufferedWriter(FileWriter(temp))
             bw.write(Serialization().main(nstaTrans).toString())
             bw.close()
-            println(q)
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
