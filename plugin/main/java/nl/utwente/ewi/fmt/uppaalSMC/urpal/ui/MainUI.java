@@ -252,7 +252,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             if (e.getKeyCode() == KeyEvent.VK_F6 && e.getID() == KeyEvent.KEY_PRESSED) {
 
                 dialogThread = new Thread(() -> {
-                    int option = JOptionPane.showOptionDialog(getRootPane(), "Sanity checker running",
+                    int option = JOptionPane.showOptionDialog(getRootPane(), "Sanity checker is running",
                             "Sanity checker",
                             JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Ok", "Do not show again"}, "Ok");
                     if (option == 1) {
