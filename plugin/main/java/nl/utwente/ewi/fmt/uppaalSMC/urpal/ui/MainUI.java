@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 
 import com.uppaal.engine.Problem;
@@ -67,9 +69,11 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                 return UNKNOWN;
         }
     }
+
     private ImageIcon getIcon(String resource) {
         return new ImageIcon(getClass().getClassLoader().getResource(resource));
     }
+
     private final List<PropertyPanel> panels = new ArrayList<>();
     private ResourceSet rs;
     private Repository<Document> docr;
@@ -126,6 +130,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         private Component component;
         private ImageIcon icon;
         private JCheckBox checkBox;
+        private SanityCheckResult lastResult;
 
         private void redoStuff() {
             Component c = component;
@@ -146,7 +151,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             setBorder(BorderFactory.createTitledBorder(property.getClass().getAnnotation(SanityCheck.class).name()));
 //            JPanel panel = new JPanel();
             checkBox = new JCheckBox(property.getClass().getAnnotation(SanityCheck.class).name());
-            checkBox.setIcon(UIManager.getIcon ("CheckBox.icon"));
+            checkBox.setIcon(UIManager.getIcon("CheckBox.icon"));
             checkBox.setSelectedIcon(icon);
             checkBox.setSelected(enabled = true);
             checkBox.addItemListener(a -> {
@@ -182,6 +187,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     docr.fire(ChangeType.valueOf("UPDATED"));
                     return Unit.INSTANCE;
                 }
+                lastResult = pr;
                 checkBox.setSelectedIcon(getIcon(getIconByOutcome(pr.getOutcome())));
                 slr.addToLog(pr);
                 if (component != null)
@@ -217,7 +223,6 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         nStates.setText("" + AbstractProperty.Companion.getStateSpaceSize());
         nStates.setPreferredSize(new Dimension(128, nStates.getPreferredSize().height));
         nStates.addPropertyChangeListener("value", evt -> {
-            System.out.println(evt.getNewValue());
             AbstractProperty.Companion.setStateSpaceSize(Integer.parseInt(evt.getNewValue().toString()));
         });
         jp.add(nStates);
@@ -229,13 +234,12 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         timeOut.setText("" + AbstractProperty.Companion.getTimeout());
         timeOut.setPreferredSize(new Dimension(128, timeOut.getPreferredSize().height));
         timeOut.addPropertyChangeListener("value", evt -> {
-            System.out.println(evt.getNewValue());
             AbstractProperty.Companion.setTimeout(Integer.parseInt(evt.getNewValue().toString()));
         });
         jp.add(timeOut);
         add(jp);
         runButton = new JButton("Run selected checks");
-        runButton.addActionListener(e -> doCheck());
+        runButton.addActionListener(e -> doCheck(true));
         add(runButton);
         for (AbstractProperty p : AbstractProperty.Companion.getProperties()) {
             PropertyPanel pp = new PropertyPanel(p);
@@ -246,12 +250,26 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         docr.addListener(this);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
             if (e.getKeyCode() == KeyEvent.VK_F6 && e.getID() == KeyEvent.KEY_PRESSED) {
-                doCheck();
+
+                dialogThread = new Thread(() -> {
+                    int option = JOptionPane.showOptionDialog(getRootPane(), "Sanity checker is running",
+                            "Sanity checker",
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Ok", "Do not show again"}, "Ok");
+                    if (option == 1) {
+                        doNotShow = true;
+                    }
+                });
+                if (!doNotShow) {
+                    dialogThread.start();
+                }
+                doCheck(false);
                 return true;
             }
             return false;
         });
     }
+
+    private boolean doNotShow = false;
 
     @Override
     public Icon getIcon() {
@@ -310,7 +328,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         this.selected = selected;
     }
 
-    private void doCheck() {
+    private void doCheck(boolean fromButton) {
         if (checkThread != null && checkThread.isAlive()) {
             checkThread.interrupt();
             UppaalUtil.INSTANCE.getEngine().cancel();
@@ -332,6 +350,25 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
             runButton.setText("Cancel current check");
             checkThread = new Thread(() -> {
                 panels.stream().filter(p -> p.enabled).forEach(p -> p.check(nsta, d, sys));
+                if (!doNotShow && !fromButton) {
+                    boolean success = panels.stream().filter(p -> p.enabled)
+                            .map(propertyPanel -> propertyPanel.lastResult)
+                            .filter(Objects::nonNull)
+                            .allMatch(sanityCheckResult -> sanityCheckResult.getOutcome() == SanityCheckResult.Outcome.SATISFIED);
+                    if (dialogThread != null && dialogThread.isAlive()) {
+                        dialogThread.interrupt();
+                    }
+                    dialogThread = new Thread(() -> {
+                        int option = JOptionPane.showOptionDialog(getRootPane(), "Sanity checker done.\n" +
+                                        (success ? "All checks satisfied" : "Violations found, see sanity checker tab for details."),
+                                "Sanity checker",
+                                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Ok", "Do not show again"}, "Ok");
+                        if (option == 1) {
+                            doNotShow = true;
+                        }
+                    });
+                    dialogThread.start();
+                }
                 runButton.setText("Run selected checks");
             });
             checkThread.start();
@@ -339,6 +376,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private Thread checkThread;
+    private Thread dialogThread;
 
     @Override
     public PluginWorkspace[] getWorkspaces() {
