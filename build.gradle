@@ -91,7 +91,9 @@ def deployToken = tokenFile.exists() ? tokenFile.getText().substring(0,40) : ""
 release {
 	failOnCommitNeeded = false
 	buildTasks = ['fatJar']
-	requireBranch = ''
+	git {
+		requireBranch = ''
+	}
 }
 updateVersion.dependsOn githubPublish
 githubPublish {
