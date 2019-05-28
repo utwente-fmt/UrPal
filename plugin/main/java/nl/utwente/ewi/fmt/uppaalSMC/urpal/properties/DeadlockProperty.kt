@@ -68,6 +68,7 @@ class DeadlockProperty : AbstractProperty() {
                         p.add(label)
                         val button = JButton("Load trace")
                         button.addActionListener {
+                            MainUI.getSystemr().set(sys)
                             MainUI.getTracer().set(UppaalUtil.transformTrace(t, sys))
                         }
                         p.add(button)

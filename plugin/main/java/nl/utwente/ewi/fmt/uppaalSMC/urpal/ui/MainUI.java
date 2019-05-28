@@ -208,6 +208,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         docr = r.getRepository("EditorDocument");
         tracer = r.getRepository("SymbolicTrace");
         problemr = r.getRepository("EditorProblems");
+        systemr = r.getRepository("SystemModel");
         r.publishRepository(slr = new SanityLogRepository());
         workspaces[0] = this;
         r.addListener(this);
