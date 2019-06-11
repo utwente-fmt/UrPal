@@ -1,74 +1,78 @@
 plugins {
-	id 'java-library'
-	id 'java'
+    id 'java-library'
+    id 'java'
     id 'eclipse'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
-	id 'net.researchgate.release' version '2.8.0'
-	id 'net.wooga.github' version '2.0.0-rc.2'
+    id 'net.researchgate.release' version '2.8.0'
+    id 'net.wooga.github' version '2.0.0-rc.2'
 }
 
 dependencies {
 
-	compile group: 'commons-io', name: 'commons-io', version: '2.6'
-	compile project(':parser')
-	compile name: 'lib/model'
-	compile name: 'uppaal'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile project(':parser')
+    implementation name: 'lib/model'
+    implementation name: 'uppaal'
+//    compile name: 'lib/freehep-graphicsbase'
 
     testImplementation 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-	compile "org.jetbrains.kotlin:kotlin-reflect:1.3.21"
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.21"
+    compile 'com.github.ajalt:clikt:2.0.0'
 }
 
 repositories {
     mavenCentral()
-	flatDir {
-		dirs "$System.env.UPPAAL_ROOT"
-	}
-	maven {
-		url 'https://repo.eclipse.org/content/groups/releases'
-	}
+    flatDir {
+        dirs "$System.env.UPPAAL_ROOT"
+    }
+    maven {
+        url 'https://repo.eclipse.org/content/groups/releases'
+    }
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir 'plugin/main/java'
-		}
-	}
+    main {
+        java {
+            srcDir 'plugin/main/java'
+        }
+    }
 }
 
-task fatJar(type: Jar)  {
-	
-	dependsOn 'parser:jar'
-	manifest {
-		attributes 'Uppaal-Plugin': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI'
-	}
-	archiveBaseName = "$project.name"
-	from {
-		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-	} {
-		exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
-	}
-	with jar
+task fatJar(type: Jar) {
+
+    dependsOn 'parser:jar'
+    manifest {
+        attributes('Uppaal-Plugin': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI',
+                'Main-Class': 'nl.utwente.ewi.fmt.uppaalSMC.urpal.cli.ApplicationKt',
+                'Class-Path': '../uppaal.jar')
+    }
+    archiveBaseName = "$project.name"
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+    with jar
 }
 
 task deployLocal(type: Copy) {
-	dependsOn fatJar
-	from file("$buildDir/libs/$project.name-${project.version}.jar")
-	into file("$System.env.UPPAAL_ROOT/plugins")
+    dependsOn fatJar
+    from file("$buildDir/libs/$project.name-${project.version}.jar")
+    into file("$System.env.UPPAAL_ROOT/plugins")
     rename { "UrPal.jar" }
 }
 
 def file() {
-	if (project.hasProperty("file")){
-		return "$file"
-	}
-	''
+    if (project.hasProperty("file")) {
+        return "$file"
+    }
+    ''
 }
 
-task runUppaal(type: JavaExec, dependsOn: deployLocal)  {
-	main = "-jar"
-	args "$System.env.UPPAAL_ROOT/uppaal.jar", file()
+task runUppaal(type: JavaExec, dependsOn: deployLocal) {
+    main = "-jar"
+    args "$System.env.UPPAAL_ROOT/uppaal.jar", file()
 }
 compileKotlin {
     kotlinOptions {
@@ -82,30 +86,30 @@ compileTestKotlin {
 }
 
 compileJava {
-	targetCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 
 def tokenFile = new File('.gittoken')
-def deployToken = tokenFile.exists() ? tokenFile.getText().substring(0,40) : ""
+def deployToken = tokenFile.exists() ? tokenFile.getText().substring(0, 40) : ""
 
 release {
-	failOnCommitNeeded = false
-	buildTasks = ['fatJar']
-	git {
-		requireBranch = ''
-	}
+    failOnCommitNeeded = false
+    buildTasks = ['fatJar']
+    git {
+        requireBranch = ''
+    }
 }
 updateVersion.dependsOn githubPublish
 githubPublish {
-	from {
-		"build/libs/$project.name-${project.version}.jar"
-	}
-	tagName {
-		project.version
-	}
+    from {
+        "build/libs/$project.name-${project.version}.jar"
+    }
+    tagName {
+        project.version
+    }
 }
 githubPublish.dependsOn preTagCommit
 github {
-	token deployToken
-	repositoryName "ramononis/UrPal"
+    token deployToken
+    repositoryName "ramononis/UrPal"
 }

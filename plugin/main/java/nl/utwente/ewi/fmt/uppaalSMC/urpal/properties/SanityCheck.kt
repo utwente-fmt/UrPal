@@ -4,4 +4,4 @@ import kotlin.annotation.Retention
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-annotation class SanityCheck(val name: String)
+annotation class SanityCheck(val name: String, val shortName: String = "")

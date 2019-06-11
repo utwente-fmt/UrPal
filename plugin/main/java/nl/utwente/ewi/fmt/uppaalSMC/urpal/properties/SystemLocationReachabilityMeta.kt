@@ -38,7 +38,7 @@ import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
-@SanityCheck(name = "System location Reachability meta")
+@SanityCheck(name = "System location Reachability meta", shortName = "locations")
 class SystemLocationReachabilityMeta : AbstractProperty() {
 
     override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
@@ -119,23 +119,21 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
 
         val q = qs.joinToString(" && ", "E<> (", ")")
         try {
-            val temp = File.createTempFile("loctest", ".xml")
-            val bw = BufferedWriter(FileWriter(temp))
-            bw.write(Serialization().main(nstaTrans).toString())
-            bw.close()
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
                     .parse(proto)
             val tSys = UppaalUtil.compile(tDoc)
 
-            AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
+            engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
 
-            AbstractProperty.engineQuery(tSys, q, OPTIONS) { qr, _ ->
+            engineQuery(tSys, q, OPTIONS) { qr, _ ->
                 if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
                     sys.processes.flatMap { it.locations.map { l -> l.location } }.distinct()
                                 .forEach { l -> l.setProperty("color", null) }
                     cb(object : SanityCheckResult() {
+                        override fun quality() = 1.0
+
                         override fun getOutcome() = Outcome.SATISFIED
                         override fun write(out: PrintStream, err: PrintStream) {
                             out.println("All locations reachable!")
@@ -187,6 +185,7 @@ class SystemLocationReachabilityMeta : AbstractProperty() {
                                 else if (reachable.contains(l)) Color.YELLOW else Color.RED)
                             }
                             cb(object : SanityCheckResult() {
+                                override fun quality() = 1.0 - unreachableSysLocs.size.toDouble() / allLocs.size.toDouble()
                                 override fun getOutcome() = Outcome.VIOLATED
 
                                 override fun write(out: PrintStream, err: PrintStream) {
