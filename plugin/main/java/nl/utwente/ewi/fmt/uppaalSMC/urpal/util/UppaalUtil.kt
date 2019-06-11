@@ -119,7 +119,10 @@ object UppaalUtil {
             "/bin-SunOS/server"
         }
         if(!File(path + pathEnd).exists()) {
-            path = System.getenv("UPPAAL_ROOT")
+            path = File(path).parent
+            if(!File(path + pathEnd).exists()) {
+                path = System.getenv("UPPAAL_ROOT")
+            }
         }
         engine.setServerPath(path + pathEnd)
         engine.setServerHost("localhost")
