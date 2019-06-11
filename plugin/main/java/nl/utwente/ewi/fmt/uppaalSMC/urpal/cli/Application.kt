@@ -45,8 +45,8 @@ class Application : CliktCommand() {
             }
         }
         val text = results.map { "${it.key.shortName()}, ${it.value}" }.joinToString("\n")
-        output?.writeText(text)
-        print(text)
+        output?.writeText(text + "\n")
+        println(text)
         UppaalUtil.engine.cancel()
         System.exit(0)
     }
