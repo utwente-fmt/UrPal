@@ -16,14 +16,16 @@ import javax.swing.BoxLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-@SanityCheck(name = "Check for unused declarations")
+@SanityCheck(name = "Check for unused declarations", shortName = "declarations")
 class UnusedDeclarationsProperty : AbstractProperty() {
     override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
         val unusedVars = mutableListOf<NamedElement>()
         val problems = ArrayList(MainUI.getProblemr()?.get() ?: listOf())
+        var counter = 0
         nsta.eAllContents().forEachRemaining {
             if (it is NamedElement &&
                     !(it is PredefinedType || it is DoubleType)) {
+                counter++
                 if (EcoreUtil.UsageCrossReferencer.find(it, nsta).isEmpty()) {
                     if (!UppaalUtil.isInSelection(it)) {
                         problems.add(UppaalUtil.buildProblem(it, doc, "Unused declarations"))
@@ -32,7 +34,7 @@ class UnusedDeclarationsProperty : AbstractProperty() {
                 }
             }
         }
-        if (unusedVars.isNotEmpty()) MainUI.getProblemr().set(problems)
+        if (unusedVars.isNotEmpty()) MainUI.getProblemr()?.set(problems)
         val qualifiedNames = unusedVars.map {
             val sb = StringBuilder(it.name.replace("nta.", "") + "(" + it.eContainer().javaClass.simpleName
                     .replace("Declaration", "")
@@ -45,6 +47,7 @@ class UnusedDeclarationsProperty : AbstractProperty() {
             sb.toString()
         }
         cb(object : SanityCheckResult() {
+            override fun quality() = 1.0 - problems.size.toDouble() / counter.toDouble()
             override fun getOutcome()= if (qualifiedNames.isEmpty()) Outcome.SATISFIED else Outcome.VIOLATED
 
             override fun write(out: PrintStream, err: PrintStream) {

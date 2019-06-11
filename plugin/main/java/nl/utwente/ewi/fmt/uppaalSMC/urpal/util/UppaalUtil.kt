@@ -21,6 +21,7 @@ import com.uppaal.engine.Engine
 import com.uppaal.engine.EngineException
 import com.uppaal.engine.EngineStub
 import com.uppaal.engine.Problem
+import com.uppaal.gui.Main.enginePath
 import com.uppaal.model.core2.*
 import com.uppaal.model.core2.AbstractTemplate
 import com.uppaal.model.core2.Edge
@@ -30,6 +31,7 @@ import com.uppaal.model.system.UppaalSystem
 import com.uppaal.model.system.symbolic.SymbolicState
 import com.uppaal.model.system.symbolic.SymbolicTrace
 import com.uppaal.model.system.symbolic.SymbolicTransition
+import com.uppaal.plugin.Repository
 
 import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.properties.AbstractProperty
@@ -42,6 +44,7 @@ import org.muml.uppaal.declarations.*
 import org.muml.uppaal.templates.*
 import org.muml.uppaal.templates.Location
 import org.muml.uppaal.templates.Template
+import java.io.File
 
 object UppaalUtil {
     var engine: Engine = connectToEngine()
@@ -101,10 +104,24 @@ object UppaalUtil {
     @Throws(EngineException::class, IOException::class, URISyntaxException::class)
     private fun connectToEngine(): Engine {
         val engine = Engine()
-        val mainClass = Class.forName("com.uppaal.gui.Main")
-        val enginePath = mainClass.getField("enginePath").get(null)
-        val engineName = mainClass.getField("engineName").get(null)
-        engine.setServerPath("$enginePath$engineName")
+        val os = System.getProperty("os.name")
+        var path = File(Repository::class.java.protectionDomain.codeSource.location.toURI())
+                .parentFile.path
+        var pathEnd = if (os == "Linux") {
+            "/bin-Linux/server"
+        } else if (os != "SunOS" && os != "Solaris") {
+            if (os.contains("Mac")) {
+                "/bin-Darwin/server"
+            } else {
+                "\\bin-Windows\\server.exe"
+            }
+        } else {
+            "/bin-SunOS/server"
+        }
+        if(!File(path + pathEnd).exists()) {
+            path = System.getenv("UPPAAL_ROOT")
+        }
+        engine.setServerPath(path + pathEnd)
         engine.setServerHost("localhost")
         engine.setConnectionMode(EngineStub.BOTH)
         engine.connect()

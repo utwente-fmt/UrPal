@@ -57,6 +57,7 @@ abstract class AbstractProperty {
 
     fun timeoutResult(): SanityCheckResult {
         val result = object : SanityCheckResult() {
+            override fun quality() = -1.0
 
             override fun write(out: PrintStream, err: PrintStream) {
                 err.println("Timeout for $name")
@@ -79,7 +80,7 @@ abstract class AbstractProperty {
     }
     fun cancelResult(): SanityCheckResult {
         val result = object : SanityCheckResult() {
-
+            override fun quality() = -1.0
             override fun write(out: PrintStream, err: PrintStream) {
                 err.println("Cancelled $name")
             }
@@ -101,6 +102,7 @@ abstract class AbstractProperty {
     }
     fun exceptionResult(): SanityCheckResult {
         val result = object : SanityCheckResult() {
+            override fun quality() = -1.0
 
             override fun write(out: PrintStream, err: PrintStream) {
                 err.println("Exception for $name")
@@ -122,6 +124,8 @@ abstract class AbstractProperty {
         return result
     }
 
+    fun shortName() = javaClass.getAnnotation(SanityCheck::class.java).shortName
+
     companion object {
 
 
@@ -133,7 +137,7 @@ abstract class AbstractProperty {
         internal const val DEFAULT_OPTIONS_DFS = "order 1\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         internal const val DEFAULT_OPTIONS_BFS = "order 0\nreduction 1\nrepresentation 0\ntrace 0\nextrapolation 0\nhashsize 27\nreuse 1\nsmcparametric 1\nmodest 0\nstatistical 0.01 0.01 0.05 0.05 0.05 0.9 1.1 0.0 0.0 4096.0 0.01"
         var stateSpaceSize = 0
-        var timeout = 15
+        var timeout = 1
 
         internal var maxMem: Long = 0
 

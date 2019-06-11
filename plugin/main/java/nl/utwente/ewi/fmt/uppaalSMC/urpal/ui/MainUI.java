@@ -75,7 +75,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     }
 
     private final List<PropertyPanel> panels = new ArrayList<>();
-    private ResourceSet rs;
+    private static ResourceSet rs;
     private Repository<Document> docr;
 
     public static Repository<SymbolicTrace> getTracer() {
@@ -108,7 +108,7 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
 
     private final PluginWorkspace[] workspaces = new PluginWorkspace[1];
 
-    private NSTA load(Document d) {
+    public static NSTA load(Document d) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
@@ -127,18 +127,19 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     private class PropertyPanel extends JPanel {
         private final AbstractProperty property;
         private boolean enabled;
-        private Component component;
+        private JPanel component;
         private ImageIcon icon;
-        private JCheckBox checkBox;
+        private JLabel iconLabel;
         private SanityCheckResult lastResult;
+        private String name;
 
         private void redoStuff() {
-            Component c = component;
-            if (c == null)
-                c = this;
-            while (c.getParent() != null) {
-                c = c.getParent();
-            }
+            Component c = this;
+//            if (c == null)
+//                c = this;
+//            while (c.getParent() != null) {
+//                c = c.getParent();
+//            }
             c.revalidate();
             c.repaint();
         }
@@ -146,33 +147,30 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
         PropertyPanel(AbstractProperty p) {
             super();
             property = p;
+            name = property.getClass().getAnnotation(SanityCheck.class).name();
             icon = getIcon(UNKNOWN);
-            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-            setBorder(BorderFactory.createTitledBorder(property.getClass().getAnnotation(SanityCheck.class).name()));
-//            JPanel panel = new JPanel();
-            checkBox = new JCheckBox(property.getClass().getAnnotation(SanityCheck.class).name());
-            checkBox.setIcon(UIManager.getIcon("CheckBox.icon"));
-            checkBox.setSelectedIcon(icon);
+            setLayout(new BorderLayout());
+            setBorder(BorderFactory.createTitledBorder(name));
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JCheckBox checkBox = new JCheckBox(name);
             checkBox.setSelected(enabled = true);
             checkBox.addItemListener(a -> {
                 enabled = a.getStateChange() == ItemEvent.SELECTED;
-                if (enabled) {
-                    Thread.yield();
-                    //doCheck(null, null, null);
-                } else {
-                    if (component != null)
-                        remove(component);
+                if (component != null) {
+                    remove(component);
+                    iconLabel.setIcon(getIcon(UNKNOWN));
                 }
                 redoStuff();
             });
-            add(checkBox);
-//            panel.add(new JLabel(icon));
-//            panel.add(checkBox);
-//            add(panel);
+            panel.add(iconLabel = new JLabel(icon));
+            panel.add(checkBox);
+//            panel.add(new JLabel(name););
+            panel.add(Box.createHorizontalGlue());
+            add(panel, BorderLayout.NORTH);
         }
 
         void check(NSTA nsta, Document doc, UppaalSystem sys) {
-            checkBox.setSelectedIcon(getIcon(MAYBE_OKAY));
+            iconLabel.setIcon(getIcon(MAYBE_OKAY));
             if (nsta == null) {
                 nsta = load(doc = docr.get());
                 try {
@@ -188,11 +186,13 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
                     return Unit.INSTANCE;
                 }
                 lastResult = pr;
-                checkBox.setSelectedIcon(getIcon(getIconByOutcome(pr.getOutcome())));
+                iconLabel.setIcon(getIcon(getIconByOutcome(pr.getOutcome())));
                 slr.addToLog(pr);
                 if (component != null)
                     remove(component);
-                add(component = pr.toPanel());
+                component = pr.toPanel();
+                add(component, BorderLayout.CENTER);
+
                 redoStuff();
                 return Unit.INSTANCE;
             });
@@ -202,18 +202,22 @@ public class MainUI extends JPanel implements Plugin, PluginWorkspace, PropertyC
     public MainUI() {
     }
 
+    static {
+
+        Injector injector = UppaalSMCStandaloneSetup.doSetup();
+        rs = injector.getInstance(XtextResourceSet.class);
+    }
+
     @SuppressWarnings("unchecked")
     public MainUI(Registry r) {
         super();
         docr = r.getRepository("EditorDocument");
         tracer = r.getRepository("SymbolicTrace");
         problemr = r.getRepository("EditorProblems");
+        systemr = r.getRepository("SystemModel");
         r.publishRepository(slr = new SanityLogRepository());
         workspaces[0] = this;
         r.addListener(this);
-
-        Injector injector = UppaalSMCStandaloneSetup.doSetup();
-        rs = injector.getInstance(XtextResourceSet.class);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 

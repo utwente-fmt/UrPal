@@ -127,10 +127,6 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
 
         val q = if (templateEdges.size == 0) "E<>(true)" else "E<>(forall (i : int[0, ${templateEdges.size - 1}]) _f[i])"
         try {
-            val temp = File.createTempFile("edgetest", ".xml")
-            val bw = BufferedWriter(FileWriter(temp))
-            bw.write(Serialization().main(nstaTrans).toString())
-            bw.close()
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
@@ -143,6 +139,7 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
                 if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
                     templateEdges.forEach { it.setProperty("color", null) }
                     cb(object : SanityCheckResult() {
+                        override fun quality() = 1.0
                         override fun getOutcome() = Outcome.SATISFIED
 
                         override fun write(out: PrintStream, err: PrintStream) {
@@ -158,7 +155,7 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
                     })
                 } else {
                     try {
-                        AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
+                        engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { qr2, ts2 ->
                             if (qr2.exception != null) {
                                 qr2.exception.printStackTrace()
                             }
@@ -180,6 +177,7 @@ class TemplateEdgeReachabilityMeta : AbstractProperty() {
                                 }
                             }
                             cb(object : SanityCheckResult() {
+                                override fun quality() = 0.0
                                 override fun getOutcome() = Outcome.VIOLATED
 
                                 override fun write(out: PrintStream, err: PrintStream) {

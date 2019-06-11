@@ -45,7 +45,7 @@ import nl.utwente.ewi.fmt.uppaalSMC.Serialization
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.ui.MainUI
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
-@SanityCheck(name = "Invariant Violation")
+@SanityCheck(name = "Invariant Violation", shortName = "invariant")
 class InvariantViolationProperty : AbstractProperty() {
 
     override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
@@ -132,10 +132,6 @@ class InvariantViolationProperty : AbstractProperty() {
             }
         }
         try {
-            val temp = File.createTempFile("invarianttest", ".xml")
-            val bw = BufferedWriter(FileWriter(temp))
-            bw.write(Serialization().main(nstaTrans).toString())
-            bw.close()
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
@@ -144,6 +140,7 @@ class InvariantViolationProperty : AbstractProperty() {
             engineQuery(tSys, "A[] (not __isViolated__)", OPTIONS) { qr, ts ->
                 val tsFinal = if (ts.isEmpty) ts else transformTrace(ts, sys)
                 cb(object : SanityCheckResult() {
+                    override fun quality() = getOutcome().ordinal.toDouble()
                     override fun getOutcome() = if (qr.status == QueryResult.MAYBE_OK || qr.status == QueryResult.OK)
                         Outcome.SATISFIED else Outcome.VIOLATED
 
@@ -154,7 +151,6 @@ class InvariantViolationProperty : AbstractProperty() {
                             err.println("An unknown error has occurred! See trace in the GUI:")
                         } else {
                             err.println("Location invariant violated! See trace in the GUI:")
-                            // ts.forEach(s -> System.err.println(s.traceFormat()));
                         }
                     }
 

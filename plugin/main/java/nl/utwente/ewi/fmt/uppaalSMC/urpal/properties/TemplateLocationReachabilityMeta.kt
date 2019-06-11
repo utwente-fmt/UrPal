@@ -129,10 +129,6 @@ class TemplateLocationReachabilityMeta : AbstractProperty() {
 
         val q = if (templateLocs.size == 1) "E<>(true)" else "E<>(forall (i : int[0, ${templateLocs.size - 1}]) _f[i])"
         try {
-            val temp = File.createTempFile("loctest", ".xml")
-            val bw = BufferedWriter(FileWriter(temp))
-            bw.write(Serialization().main(nstaTrans).toString())
-            bw.close()
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
@@ -146,6 +142,7 @@ class TemplateLocationReachabilityMeta : AbstractProperty() {
                 if (qr.status == QueryResult.OK || qr.status == QueryResult.MAYBE_OK) {
                     templateLocs.forEach { l -> l.setProperty("color", null) }
                     cb(object : SanityCheckResult() {
+                        override fun quality() = 1.0
                         override fun getOutcome() = Outcome.SATISFIED
 
                         override fun write(out: PrintStream, err: PrintStream) {
@@ -183,6 +180,7 @@ class TemplateLocationReachabilityMeta : AbstractProperty() {
                                 }
                             }
                             cb(object : SanityCheckResult() {
+                                override fun quality() = 0.0
                                 override fun getOutcome() = Outcome.VIOLATED
 
                                 override fun write(out: PrintStream, err: PrintStream) {

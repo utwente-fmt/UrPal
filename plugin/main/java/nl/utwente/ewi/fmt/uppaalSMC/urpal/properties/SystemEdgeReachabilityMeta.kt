@@ -39,7 +39,7 @@ import nl.utwente.ewi.fmt.uppaalSMC.NSTA
 import nl.utwente.ewi.fmt.uppaalSMC.Serialization
 import nl.utwente.ewi.fmt.uppaalSMC.urpal.util.UppaalUtil
 
-@SanityCheck(name = "System edge Reachability meta")
+@SanityCheck(name = "System edge Reachability meta", shortName = "edges")
 class SystemEdgeReachabilityMeta : AbstractProperty() {
 
     override fun doCheck(nsta: NSTA, doc: Document, sys: UppaalSystem, cb: (SanityCheckResult) -> Unit) {
@@ -123,18 +123,13 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
 
         val q = qs.joinToString(" && ", "E<> (", ")")
         try {
-
-            val temp = File.createTempFile("edgetest", ".xml")
-            val bw = BufferedWriter(FileWriter(temp))
-            bw.write(Serialization().main(nstaTrans).toString())
-            bw.close()
             val proto = PrototypeDocument()
             proto.setProperty("synchronization", "")
             val tDoc = XMLReader(CharSequenceInputStream(Serialization().main(nstaTrans), "UTF-8"))
                     .parse(proto)
             val tSys = UppaalUtil.compile(tDoc)
 
-            AbstractProperty.engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
+            engineQuery(tSys, "E<> (_Controller.done)", OPTIONS) { _, _ -> }
             AbstractProperty.engineQuery(tSys, q, OPTIONS) { qr, _ ->
                 fun doOk() {
                     sys.processes
@@ -142,6 +137,7 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                             .forEach { l -> l.setProperty("color", null) }
 
                     cb(object : SanityCheckResult() {
+                        override fun quality() = 1.0
                         override fun getOutcome() = Outcome.SATISFIED
 
                         override fun write(out: PrintStream, err: PrintStream) {
@@ -197,7 +193,7 @@ class SystemEdgeReachabilityMeta : AbstractProperty() {
                                     } else null)
                                 }
                                 cb(object : SanityCheckResult() {
-
+                                    override fun quality() = 1.0 - unreachableSysEdges.size.toDouble() / allEdges.size.toDouble()
                                     override fun getOutcome() = Outcome.VIOLATED
 
                                     override fun write(out: PrintStream, err: PrintStream) {
