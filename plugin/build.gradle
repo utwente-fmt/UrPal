@@ -13,6 +13,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation 'com.github.ajalt:clikt:2.0.0'
 }
 
 repositories {
@@ -30,6 +31,7 @@ sourceSets {
 		java {
 			srcDir 'main/java'
 		}
+		
 		resources {
 			srcDir 'main/resources'
 		}
