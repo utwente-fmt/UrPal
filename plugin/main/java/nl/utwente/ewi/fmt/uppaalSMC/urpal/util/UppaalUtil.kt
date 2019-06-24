@@ -159,10 +159,13 @@ object UppaalUtil {
         reconnect()
         val problems = ArrayList<Problem>()
         val sys = engine.getSystem(doc, problems)
-        if (!problems.isEmpty()) {
+        if (problems.isNotEmpty()) {
             println("There are problems with the document:")
             problems.forEach { p ->
                 println(p.toString())
+            }
+            if (sys == null) {
+                throw EngineException("compiler error: " + problems.first().toString())
             }
         }
         return sys

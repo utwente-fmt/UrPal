@@ -24,6 +24,7 @@ class Application : CliktCommand() {
             .split(",")
 
     override fun run() {
+        val actualChecks = if (checks?.isEmpty() != false) AbstractProperty.properties else checks!!.toTypedArray()
         val doc = XMLReader(input.inputStream()).parse(PrototypeDocument())
         val nsta = load(doc)
         val sys: UppaalSystem
@@ -31,13 +32,15 @@ class Application : CliktCommand() {
             sys = UppaalUtil.compile(doc)
         } catch (e: EngineException) {
             e.printStackTrace()
+            output?.writeText("compile error\n")
+            System.exit(0)
             return
         } catch (e: IOException) {
             e.printStackTrace()
+            System.exit(0)
             return
         }
 
-        val actualChecks = if (checks?.isEmpty() != false) AbstractProperty.properties else checks!!.toTypedArray()
         val results = mutableMapOf<AbstractProperty, Double>()
         actualChecks.forEach { property ->
             property.javaClass.newInstance().check(nsta, doc, sys) { cb ->

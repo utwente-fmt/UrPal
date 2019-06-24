@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/ramononis/UrPal.svg?style=svg)](https://circleci.com/gh/ramononis/UrPal)
+[![CircleCI](https://circleci.com/gh/utwente-fmt/UrPal.svg?style=svg)](https://circleci.com/gh/utwente-fmt/UrPal)
 # UrPal
 Applying sanity checks to find commonly made errors in Uppaal models
 ### Setup
@@ -25,4 +25,4 @@ The project is set-up using Gradle, meaning that any Java IDE with a Gradle plug
 The base language is Java, however, support for Kotlin (the better Java) is present.
 
 ### Documentation
-See the [wiki](https://github.com/ramononis/UrPal/wiki)
+See the [wiki](https://github.com/utwente-fmt/UrPal/wiki)
